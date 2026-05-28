@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+.env
+
+# MLflow
+mlruns/
+
+# Data
+data/raw/
+data/bronze/
+data/silver/
+data/gold/
+
+# Models
+models/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+logs/
+*.log
+
+# Cache
+.cache/
+.pytest_cache/
+
+# IDE
+.vscode/
+
+# Prefect
+.prefect/
+
+# OS
+.DS_Store
+Thumbs.db
