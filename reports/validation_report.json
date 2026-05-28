@@ -1,0 +1,81 @@
+{
+  "pipeline": "validation",
+  "run_at": "2026-05-27T01:28:48.812957+00:00",
+  "overall_passed": true,
+  "validators_run": 7,
+  "validators_passed": 7,
+  "results": [
+    {
+      "validator": "schema",
+      "passed": true,
+      "missing_columns": [],
+      "wrong_dtypes": {}
+    },
+    {
+      "validator": "null",
+      "passed": true,
+      "null_counts": {},
+      "null_pcts": {},
+      "violations": {},
+      "threshold": 0.05
+    },
+    {
+      "validator": "temporal",
+      "passed": true,
+      "invalid_week_num_rows": 0,
+      "invalid_year_rows": 0,
+      "malformed_year_week_rows": 0,
+      "year_range": {
+        "min": 2023,
+        "max": 2025
+      }
+    },
+    {
+      "validator": "leakage",
+      "passed": true,
+      "temporal_order_violations": 0,
+      "future_referencing_columns": []
+    },
+    {
+      "validator": "duplicate",
+      "passed": true,
+      "total_rows": 4609956,
+      "unique_key_rows": 4609956,
+      "duplicate_rows": 0,
+      "key_columns": [
+        "Channel",
+        "Material Description",
+        "Category",
+        "year_week"
+      ]
+    },
+    {
+      "validator": "range",
+      "passed": true,
+      "negative_quantity_rows": 0,
+      "extreme_quantity_rows": 0,
+      "quantity_stats": {
+        "count": 4609956.0,
+        "mean": 17.96,
+        "std": 206.79,
+        "min": 0.0,
+        "25%": 0.0,
+        "50%": 0.0,
+        "75%": 0.0,
+        "max": 43484.0
+      }
+    },
+    {
+      "validator": "inventory_consistency",
+      "passed": true,
+      "categories_present": [
+        "Channel Inv.",
+        "Cust. Sales",
+        "Sell-in"
+      ],
+      "inventory_rows": 1536652,
+      "negative_inventory_rows": 0,
+      "negative_inventory_pct": 0.0
+    }
+  ]
+}

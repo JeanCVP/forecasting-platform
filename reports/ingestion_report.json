@@ -1,0 +1,60 @@
+{
+  "pipeline": "bronze_ingestion",
+  "run_at": "2026-05-28T02:02:42.651123+00:00",
+  "data_dir": "data/raw",
+  "files": {
+    "2023": {
+      "source_file": "data/raw/2023.csv",
+      "source_hash_sha256": "0f815bf3e13a50b393ac98f9e2b50f032d0449ab09fd3d6e9f287f222c65ad43",
+      "dataset_hash": "0942d4ab21d2ed8faba75eab3b9e46324e2e586142e94b2e3c6ea42ee283320b",
+      "rows": 43338,
+      "columns": 55,
+      "bronze_path": "data/bronze/bronze_2023.parquet"
+    },
+    "2024": {
+      "source_file": "data/raw/2024.csv",
+      "source_hash_sha256": "0cff484bf2c958f358d682a043a3b6928c17b26329bbfc9e504b2c8ce24a680a",
+      "dataset_hash": "0f40524cf8d4de07f5987b70b77c942c05f86106499a4b178540c2f315a036d1",
+      "rows": 37035,
+      "columns": 55,
+      "bronze_path": "data/bronze/bronze_2024.parquet"
+    },
+    "2025": {
+      "source_file": "data/raw/2025.csv",
+      "source_hash_sha256": "dd45c04d343045f09d01a7cf09de1cc77920cdd3a9cd5baa757836fb6c6b5ce4",
+      "dataset_hash": "39e76b71dd46a50f1431746ac74fe8488f778a27e12a78f32f0720bc20a34026",
+      "rows": 25239,
+      "columns": 55,
+      "bronze_path": "data/bronze/bronze_2025.parquet"
+    }
+  },
+  "lineage": [
+    {
+      "event": "raw_to_bronze",
+      "year": "2023",
+      "source": "data/raw/2023.csv",
+      "destination": "data/bronze/bronze_2023.parquet",
+      "timestamp": "2026-05-28T02:02:42.985247+00:00",
+      "rows_written": 43338,
+      "source_hash": "0f815bf3e13a50b393ac98f9e2b50f032d0449ab09fd3d6e9f287f222c65ad43"
+    },
+    {
+      "event": "raw_to_bronze",
+      "year": "2024",
+      "source": "data/raw/2024.csv",
+      "destination": "data/bronze/bronze_2024.parquet",
+      "timestamp": "2026-05-28T02:02:43.247317+00:00",
+      "rows_written": 37035,
+      "source_hash": "0cff484bf2c958f358d682a043a3b6928c17b26329bbfc9e504b2c8ce24a680a"
+    },
+    {
+      "event": "raw_to_bronze",
+      "year": "2025",
+      "source": "data/raw/2025.csv",
+      "destination": "data/bronze/bronze_2025.parquet",
+      "timestamp": "2026-05-28T02:02:43.450341+00:00",
+      "rows_written": 25239,
+      "source_hash": "dd45c04d343045f09d01a7cf09de1cc77920cdd3a9cd5baa757836fb6c6b5ce4"
+    }
+  ]
+}

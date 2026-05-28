@@ -1,0 +1,153 @@
+{
+  "pipeline": "schema_validation",
+  "run_at": "2026-05-28T02:02:42.651136+00:00",
+  "results": [
+    {
+      "year": "2023",
+      "rows": 43338,
+      "week_columns": 52,
+      "missing_required_columns": [],
+      "invalid_category_values": [],
+      "null_counts_id_columns": {
+        "Channel": 0,
+        "Material Description": 0,
+        "Category": 0
+      },
+      "is_valid": true
+    },
+    {
+      "year": "2024",
+      "rows": 37035,
+      "week_columns": 52,
+      "missing_required_columns": [],
+      "invalid_category_values": [],
+      "null_counts_id_columns": {
+        "Channel": 0,
+        "Material Description": 0,
+        "Category": 0
+      },
+      "is_valid": true
+    },
+    {
+      "year": "2025",
+      "rows": 25239,
+      "week_columns": 52,
+      "missing_required_columns": [],
+      "invalid_category_values": [],
+      "null_counts_id_columns": {
+        "Channel": 0,
+        "Material Description": 0,
+        "Category": 0
+      },
+      "is_valid": true
+    }
+  ],
+  "dtype_issues": [
+    {
+      "year": "2023",
+      "column": "202301",
+      "dtype_found": "object",
+      "dtype_expected": "float64",
+      "comma_formatted_sample_count": 0
+    },
+    {
+      "year": "2023",
+      "column": "202302",
+      "dtype_found": "object",
+      "dtype_expected": "float64",
+      "comma_formatted_sample_count": 0
+    },
+    {
+      "year": "2023",
+      "column": "202303",
+      "dtype_found": "object",
+      "dtype_expected": "float64",
+      "comma_formatted_sample_count": 0
+    },
+    {
+      "year": "2023",
+      "column": "202304",
+      "dtype_found": "object",
+      "dtype_expected": "float64",
+      "comma_formatted_sample_count": 0
+    },
+    {
+      "year": "2023",
+      "column": "202305",
+      "dtype_found": "object",
+      "dtype_expected": "float64",
+      "comma_formatted_sample_count": 0
+    },
+    {
+      "year": "2024",
+      "column": "202401",
+      "dtype_found": "object",
+      "dtype_expected": "float64",
+      "comma_formatted_sample_count": 0
+    },
+    {
+      "year": "2024",
+      "column": "202402",
+      "dtype_found": "object",
+      "dtype_expected": "float64",
+      "comma_formatted_sample_count": 0
+    },
+    {
+      "year": "2024",
+      "column": "202403",
+      "dtype_found": "object",
+      "dtype_expected": "float64",
+      "comma_formatted_sample_count": 0
+    },
+    {
+      "year": "2024",
+      "column": "202404",
+      "dtype_found": "object",
+      "dtype_expected": "float64",
+      "comma_formatted_sample_count": 0
+    },
+    {
+      "year": "2024",
+      "column": "202405",
+      "dtype_found": "object",
+      "dtype_expected": "float64",
+      "comma_formatted_sample_count": 0
+    },
+    {
+      "year": "2025",
+      "column": "202501",
+      "dtype_found": "object",
+      "dtype_expected": "float64",
+      "comma_formatted_sample_count": 0
+    },
+    {
+      "year": "2025",
+      "column": "202502",
+      "dtype_found": "object",
+      "dtype_expected": "float64",
+      "comma_formatted_sample_count": 0
+    },
+    {
+      "year": "2025",
+      "column": "202503",
+      "dtype_found": "object",
+      "dtype_expected": "float64",
+      "comma_formatted_sample_count": 0
+    },
+    {
+      "year": "2025",
+      "column": "202504",
+      "dtype_found": "object",
+      "dtype_expected": "float64",
+      "comma_formatted_sample_count": 0
+    },
+    {
+      "year": "2025",
+      "column": "202505",
+      "dtype_found": "object",
+      "dtype_expected": "float64",
+      "comma_formatted_sample_count": 0
+    }
+  ],
+  "overall_valid": true
+}

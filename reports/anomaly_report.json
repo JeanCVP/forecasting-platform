@@ -1,0 +1,169 @@
+{
+  "pipeline": "silver_cleaning",
+  "run_at": "2026-05-28T02:04:43.291828+00:00",
+  "anomaly_count": 10934,
+  "anomaly_pct": 0.0106,
+  "z_score_threshold": 4.0,
+  "top_anomalies": [
+    {
+      "Channel": "CUSTOMER35",
+      "Material Description": "MOBILE,SM-A057M/DS,BLACK,LTC",
+      "Category": "Cust. Sales",
+      "year_week": "202435",
+      "quantity": 2867.0,
+      "z": 91.35250912647552
+    },
+    {
+      "Channel": "CUSTOMER35",
+      "Material Description": "MOBILE,SM-A057M/DS,BLACK,LTC",
+      "Category": "Sell-in",
+      "year_week": "202435",
+      "quantity": 2869.0,
+      "z": 90.83878564284169
+    },
+    {
+      "Channel": "CUSTOMER18",
+      "Material Description": "TABLET,SM-X210,GRAY,COO",
+      "Category": "Cust. Sales",
+      "year_week": "202428",
+      "quantity": 17162.0,
+      "z": 73.0747754981238
+    },
+    {
+      "Channel": "CUSTOMER87",
+      "Material Description": "MINI COMPONENT,MX-T40,COLOMBIA",
+      "Category": "Cust. Sales",
+      "year_week": "202447",
+      "quantity": 852.0,
+      "z": 55.33381213540879
+    },
+    {
+      "Channel": "CUSTOMER35",
+      "Material Description": "MOBILE,SM-A057M/DS,LIGHT VIOLET,LTC",
+      "Category": "Cust. Sales",
+      "year_week": "202435",
+      "quantity": 1628.0,
+      "z": 51.72401849544291
+    },
+    {
+      "Channel": "CUSTOMER16",
+      "Material Description": "LED TV,UN70DU7000K,70,COLOMBIA,UWS41/U70",
+      "Category": "Cust. Sales",
+      "year_week": "202448",
+      "quantity": 1494.0,
+      "z": 51.67731668843957
+    },
+    {
+      "Channel": "CUSTOMER35",
+      "Material Description": "MOBILE,SM-A057M/DS,LIGHT VIOLET,LTC",
+      "Category": "Sell-in",
+      "year_week": "202435",
+      "quantity": 1628.0,
+      "z": 51.39870621274017
+    },
+    {
+      "Channel": "CUSTOMER18",
+      "Material Description": "TABLET,SM-X210,GRAY,COO",
+      "Category": "Channel Inv.",
+      "year_week": "202426",
+      "quantity": 27552.0,
+      "z": 46.55588480644087
+    },
+    {
+      "Channel": "CUSTOMER18",
+      "Material Description": "TABLET,SM-X210,GRAY,COO",
+      "Category": "Channel Inv.",
+      "year_week": "202427",
+      "quantity": 27543.0,
+      "z": 46.54064251575078
+    },
+    {
+      "Channel": "CUSTOMER54",
+      "Material Description": "MOBILE,SM-A145M/DS,BLACK,LTC",
+      "Category": "Cust. Sales",
+      "year_week": "202344",
+      "quantity": 1809.0,
+      "z": 42.74835679292302
+    },
+    {
+      "Channel": "CUSTOMER35",
+      "Material Description": "MOBILE,SM-A057M/DS,SILVER,LTC",
+      "Category": "Cust. Sales",
+      "year_week": "202435",
+      "quantity": 1250.0,
+      "z": 39.63397050631432
+    },
+    {
+      "Channel": "CUSTOMER35",
+      "Material Description": "MOBILE,SM-A057M/DS,SILVER,LTC",
+      "Category": "Sell-in",
+      "year_week": "202435",
+      "quantity": 1250.0,
+      "z": 39.38553133395018
+    },
+    {
+      "Channel": "CUSTOMER18",
+      "Material Description": "TABLET,SM-X210,GRAY,COO",
+      "Category": "Sell-in",
+      "year_week": "202426",
+      "quantity": 27518.0,
+      "z": 39.307747516702804
+    },
+    {
+      "Channel": "CUSTOMER42",
+      "Material Description": "MOBILE,SM-A045M/DS,BLACK,LTC",
+      "Category": "Sell-in",
+      "year_week": "202315",
+      "quantity": 16999.0,
+      "z": 39.272722053413446
+    },
+    {
+      "Channel": "CUSTOMER43",
+      "Material Description": "MOBILE,SM-A346M/DSN,LIGHT GREEN ,LTC",
+      "Category": "Cust. Sales",
+      "year_week": "202347",
+      "quantity": 2000.0,
+      "z": 39.03910143944722
+    },
+    {
+      "Channel": "CUSTOMER74",
+      "Material Description": "MOBILE,SM-A042M/DS,LIGHT BLUE,LTC",
+      "Category": "Cust. Sales",
+      "year_week": "202324",
+      "quantity": 1952.0,
+      "z": 38.696102544387664
+    },
+    {
+      "Channel": "CUSTOMER18",
+      "Material Description": "TABLET,SM-X210,GRAY,COO",
+      "Category": "Cust. Sales",
+      "year_week": "202515",
+      "quantity": 9055.0,
+      "z": 38.52435464572072
+    },
+    {
+      "Channel": "CUSTOMER50",
+      "Material Description": "LED TV,UN40T5290AK,40,COLOMBIA,UWM00/U40",
+      "Category": "Cust. Sales",
+      "year_week": "202303",
+      "quantity": 1212.0,
+      "z": 37.600172508638444
+    },
+    {
+      "Channel": "CUSTOMER43",
+      "Material Description": "MOBILE,SM-A346M/DSN,BLACK,LTC",
+      "Category": "Cust. Sales",
+      "year_week": "202347",
+      "quantity": 1831.0,
+      "z": 35.712674673995366
+    },
+    {
+      "Channel": "CUSTOMER54",
+      "Material Description": "MOBILE,SM-A145M/DS,BLACK,LTC",
+      "Category": "Channel Inv.",
+      "year_week": "202331",
+      "quantity": 5400.0,
+      "z": 35.355624798905794
+    }
+  ]
+}

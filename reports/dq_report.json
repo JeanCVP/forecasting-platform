@@ -1,0 +1,53 @@
+{
+  "pipeline": "silver_cleaning",
+  "run_at": "2026-05-28T02:04:43.276948+00:00",
+  "rows_total": 4609956,
+  "duplicates_removed": 881868,
+  "temporal_validation": {
+    "years_present": [
+      2023,
+      2024,
+      2025
+    ],
+    "week_range": [
+      1,
+      52
+    ]
+  },
+  "truncation_analysis": {
+    "truncation_detected": true,
+    "zero_tail_weeks_2025": [
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52
+    ],
+    "last_nonzero_week_2025": 33,
+    "n_nonzero_weeks_2025": 33
+  },
+  "dq_metrics": {
+    "total_rows": 4609956,
+    "null_quantity": 0,
+    "negative_quantity": 0,
+    "zero_quantity": 3574508,
+    "pct_null_quantity": 0.0,
+    "pct_zero_quantity": 0.7754,
+    "quality_score": 0.9123
+  },
+  "silver_path": "data/silver/silver_dataset.parquet"
+}
