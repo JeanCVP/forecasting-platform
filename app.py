@@ -41,14 +41,14 @@ def load_silver() -> pd.DataFrame:
     return df
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=60)
 def load_forecasts() -> pd.DataFrame | None:
     if not FORECASTS_PATH.exists():
         return None
     return pd.read_parquet(FORECASTS_PATH)
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=60)
 def load_risk() -> pd.DataFrame | None:
     if not RISK_PATH.exists():
         return None
@@ -72,6 +72,9 @@ page = st.sidebar.radio(
     ["📊 Resumen", "📈 Tendencias Históricas", "🔮 Forecasts", "⚠️ Riesgo de Inventario"],
 )
 st.sidebar.markdown("---")
+if st.sidebar.button("🔄 Refrescar datos"):
+    st.cache_data.clear()
+    st.rerun()
 st.sidebar.caption("AI-DLC · Colombia · 2025")
 
 
@@ -130,8 +133,8 @@ if page == "📊 Resumen":
         f1.metric("SKUs con forecast", f"{fc_rep.get('n_skus_forecast', 0):,}")
         f2.metric("Ventana de forecast",
                   f"W{str(fc_rep.get('forecast_start',''))[-2:]}–W{str(fc_rep.get('forecast_end',''))[-2:]} 2025")
-        total = fc_rep.get("total_forecast_lgbm", 0)
-        f3.metric("Volumen total estimado", f"{total:,.0f} unidades")
+        total = fc_rep.get("total_forecast_naive", 0)
+        f3.metric("Volumen total estimado (Naïve)", f"{total:,.0f} unidades")
     else:
         st.info("Forecasts aún no generados.")
 
@@ -287,8 +290,8 @@ elif page == "🔮 Forecasts":
     k1, k2, k3 = st.columns(3)
     k1.metric("SKUs con forecast", f"{forecasts[['Channel','Material Description']].drop_duplicates().shape[0]:,}")
     k2.metric("Horizonte", f"W{str(fc_rep.get('forecast_start',''))[-2:]}–W{str(fc_rep.get('forecast_end',''))[-2:]} 2025")
-    total = forecasts["forecast_lgbm"].sum()
-    k3.metric("Volumen total estimado (LightGBM)", f"{total:,.0f} unidades")
+    total = forecasts["forecast_naive"].sum()
+    k3.metric("Volumen total estimado", f"{total:,.0f} unidades")
 
     st.markdown("---")
 
@@ -330,7 +333,7 @@ elif page == "🔮 Forecasts":
     fc_lgbm = (
         fc_agg[["year_week", "forecast_lgbm"]]
         .rename(columns={"forecast_lgbm": "value"})
-        .assign(tipo="LightGBM")
+        .assign(tipo="LightGBM (ref.)")
     )
     fc_naive = (
         fc_agg[["year_week", "forecast_naive"]]
@@ -345,8 +348,12 @@ elif page == "🔮 Forecasts":
     combined = pd.concat([hist_recent, fc_lgbm, fc_naive], ignore_index=True)
 
     color_scale = alt.Scale(
-        domain=["Histórico", "LightGBM", "Seasonal Naïve"],
+        domain=["Histórico", "Seasonal Naïve", "LightGBM (ref.)"],
         range=["#aec7e8", "#1f77b4", "#ff7f0e"],
+    )
+    stroke_scale = alt.Scale(
+        domain=["Histórico", "Seasonal Naïve", "LightGBM (ref.)"],
+        range=[[1, 0], [1, 0], [6, 3]],
     )
     chart = (
         alt.Chart(combined)
@@ -355,11 +362,7 @@ elif page == "🔮 Forecasts":
             x=alt.X("year_week_str:O", title="Semana", axis=alt.Axis(labelAngle=-45, labelOverlap="greedy")),
             y=alt.Y("value:Q", title="Cantidad"),
             color=alt.Color("tipo:N", scale=color_scale, title="Serie"),
-            strokeDash=alt.condition(
-                alt.datum.tipo == "Histórico",
-                alt.value([1, 0]),
-                alt.value([6, 3]),
-            ),
+            strokeDash=alt.StrokeDash("tipo:N", scale=stroke_scale),
             tooltip=["year_week_str:O", "tipo:N", alt.Tooltip("value:Q", format=",.1f")],
         )
         .properties(height=350)
@@ -370,13 +373,13 @@ elif page == "🔮 Forecasts":
     st.markdown("---")
 
     # Top 10 SKUs por volumen forecast
-    st.subheader("Top 10 SKUs por volumen estimado (LightGBM)")
+    st.subheader("Top 10 SKUs por volumen estimado")
     top10 = (
-        forecasts.groupby(["Channel", "Material Description"])["forecast_lgbm"]
+        forecasts.groupby(["Channel", "Material Description"])["forecast_naive"]
         .sum()
         .nlargest(10)
         .reset_index()
-        .sort_values("forecast_lgbm")
+        .sort_values("forecast_naive")
     )
     top10["label"] = top10["Channel"].str[:10] + " · " + top10["Material Description"].str[:25]
     chart_top = (
@@ -384,9 +387,9 @@ elif page == "🔮 Forecasts":
         .mark_bar(color="#1f77b4")
         .encode(
             y=alt.Y("label:N", sort="-x", title=""),
-            x=alt.X("forecast_lgbm:Q", title="Unidades estimadas (13 semanas)"),
+            x=alt.X("forecast_naive:Q", title="Unidades estimadas (13 semanas)"),
             tooltip=["Channel:N", "Material Description:N",
-                     alt.Tooltip("forecast_lgbm:Q", format=",.0f")],
+                     alt.Tooltip("forecast_naive:Q", format=",.0f")],
         )
         .properties(height=320)
     )

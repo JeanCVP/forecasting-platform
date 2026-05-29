@@ -102,8 +102,8 @@ def run_inventory_risk_scoring() -> dict:
     fc_agg = (
         forecasts.groupby(["Channel", "Material Description"])
         .agg(
-            forecast_13wk=("forecast_lgbm", "sum"),
-            avg_weekly_demand=("forecast_lgbm", "mean"),
+            forecast_13wk=("forecast_naive", "sum"),
+            avg_weekly_demand=("forecast_naive", "mean"),
             forecast_start=("year_week", "min"),
             forecast_end=("year_week", "max"),
             n_weeks=("horizon_step", "count"),
@@ -131,8 +131,8 @@ def run_inventory_risk_scoring() -> dict:
     log.info("Calculando semana de quiebre por SKU...")
     fc_by_sku = (
         forecasts.sort_values("horizon_step")
-        .groupby(["Channel", "Material Description"])[["year_week", "forecast_lgbm"]]
-        .apply(lambda g: list(zip(g["year_week"], g["forecast_lgbm"])), include_groups=False)
+        .groupby(["Channel", "Material Description"])[["year_week", "forecast_naive"]]
+        .apply(lambda g: list(zip(g["year_week"], g["forecast_naive"])), include_groups=False)
         .to_dict()
     )
 
