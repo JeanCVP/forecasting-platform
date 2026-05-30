@@ -291,7 +291,7 @@ if page == "🏠  Resumen Ejecutivo":
             .properties(height=280)
             .interactive()
         )
-        st.altair_chart(mini, use_container_width=True)
+        st.altair_chart(mini, width='stretch')
         st.caption("La línea punteada verde representa la proyección para las semanas 34–46 de 2025.")
 
 
@@ -370,7 +370,7 @@ elif page == "📈  Comportamiento de Ventas":
         .properties(height=300)
         .interactive()
     )
-    st.altair_chart(trend_chart, use_container_width=True)
+    st.altair_chart(trend_chart, width='stretch')
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -395,7 +395,7 @@ elif page == "📈  Comportamiento de Ventas":
             )
             .properties(height=320)
         )
-        st.altair_chart(chart_cl, use_container_width=True)
+        st.altair_chart(chart_cl, width='stretch')
 
     # ── Top 10 productos ──────────────────────────────────────────────────────
     with col_r:
@@ -417,7 +417,7 @@ elif page == "📈  Comportamiento de Ventas":
             )
             .properties(height=320)
         )
-        st.altair_chart(chart_pr, use_container_width=True)
+        st.altair_chart(chart_pr, width='stretch')
 
     # ── Comparativo anual ─────────────────────────────────────────────────────
     st.markdown("<br>", unsafe_allow_html=True)
@@ -446,7 +446,7 @@ elif page == "📈  Comportamiento de Ventas":
         .properties(height=280)
         .interactive()
     )
-    st.altair_chart(yoy_chart, use_container_width=True)
+    st.altair_chart(yoy_chart, width='stretch')
     st.caption("2025 muestra datos hasta la semana 33. Las semanas posteriores corresponden a la proyección.")
 
 
@@ -542,7 +542,7 @@ elif page == "🔮  Proyección de Demanda":
         .encode(x="semana:O")
     )
 
-    st.altair_chart(main_chart + rule, use_container_width=True)
+    st.altair_chart(main_chart + rule, width='stretch')
     st.caption("La línea roja punteada marca el límite entre datos reales y proyección.")
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -569,7 +569,7 @@ elif page == "🔮  Proyección de Demanda":
         )
         .properties(height=340)
     )
-    st.altair_chart(bar_top, use_container_width=True)
+    st.altair_chart(bar_top, width='stretch')
 
     # ── Tabla detalle ─────────────────────────────────────────────────────────
     with st.expander("📋 Ver tabla completa de proyecciones por semana"):
@@ -584,7 +584,7 @@ elif page == "🔮  Proyección de Demanda":
             })
             .sort_values(["Cliente", "Producto", "Semana"])
         )
-        st.dataframe(show, use_container_width=True)
+        st.dataframe(show, width='stretch')
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -655,7 +655,7 @@ elif page == "🚨  Alertas de Inventario":
             )
             .properties(height=280)
         )
-        st.altair_chart(donut, use_container_width=True)
+        st.altair_chart(donut, width='stretch')
 
     with col_g2:
         st.markdown('<div class="section-header">Semanas de cobertura por producto</div>',
@@ -681,7 +681,7 @@ elif page == "🚨  Alertas de Inventario":
             )
             .properties(height=280)
         )
-        st.altair_chart(hist_wos, use_container_width=True)
+        st.altair_chart(hist_wos, width='stretch')
 
     st.markdown("---")
 
@@ -763,4 +763,4 @@ elif page == "🚨  Alertas de Inventario":
         .format({"A comprar (uds)": "{:,.0f}", "Cobertura (sem)": "{:.1f}"})
         .hide(axis="index")
     )
-    st.dataframe(styled, use_container_width=True, height=450)
+    st.dataframe(styled, width='stretch', height=450)
