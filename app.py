@@ -691,12 +691,12 @@ elif page == "🚨  Alertas de Inventario":
 
     col_filt1, col_filt2 = st.columns(2)
     nivel_sel = col_filt1.selectbox(
-        "Filtrar por nivel",
+        "Nivel de riesgo",
         ["Crítico y Alerta", "Solo Crítico", "Solo Alerta", "Todos"],
         key="risk_nivel"
     )
     cliente_sel = col_filt2.selectbox(
-        "Filtrar por cliente",
+        "Cliente",
         ["Todos los clientes"] + sorted(risk["Channel"].unique()),
         key="risk_cl"
     )
@@ -711,47 +711,56 @@ elif page == "🚨  Alertas de Inventario":
     if cliente_sel != "Todos los clientes":
         risk_view = risk_view[risk_view["Channel"] == cliente_sel]
 
-    # Cards para los top 8 más críticos
-    top_cards = risk_view.head(8)
-    for i in range(0, len(top_cards), 2):
-        cols = st.columns(2)
-        for j, col in enumerate(cols):
-            if i + j >= len(top_cards):
-                break
-            row = top_cards.iloc[i + j]
-            nivel = row["risk_level"]
-            css_class = "alert-critical" if nivel == "CRITICAL" else "alert-high"
-            emoji = "🔴" if nivel == "CRITICAL" else "🟠"
-            sw = row.get("stockout_week")
-            sw_str = f"Quiebre estimado: <strong>W{str(int(sw))[-2:]} 2025</strong>" if sw and not pd.isna(sw) else "Quiebre inminente"
-            inv_str = f"{row['current_inventory']:,.0f}"
-            dem_str = f"{row['forecast_13wk']:,.0f}"
-            wos_str = f"{row['weeks_of_supply']:.1f}"
-            col.markdown(f"""
-            <div class="alert-card {css_class}">
-                <div class="alert-title">{emoji} {str(row['Channel'])} · {str(row['Material Description'])[:40]}</div>
-                <div class="alert-body">
-                    {sw_str}<br>
-                    Inventario actual: <strong>{inv_str}</strong> uds. &nbsp;|&nbsp;
-                    Demanda proyectada 13s: <strong>{dem_str}</strong> uds. &nbsp;|&nbsp;
-                    Cobertura: <strong>{wos_str} semanas</strong>
-                </div>
-            </div>""", unsafe_allow_html=True)
+    # KPIs de resumen
+    deficit_total = (risk_view["forecast_13wk"] - risk_view["current_inventory"]).clip(lower=0).sum()
+    crit_count    = (risk_view["risk_level"] == "CRITICAL").sum()
+    c_s1, c_s2, c_s3 = st.columns(3)
+    with c_s1:
+        kpi(f"{len(risk_view):,}", "Productos en esta vista")
+    with c_s2:
+        kpi(f"{deficit_total:,.0f}", "Unidades totales a comprar", color="red")
+    with c_s3:
+        kpi(f"{crit_count:,}", "Requieren acción inmediata",
+            color="red" if crit_count > 0 else "green")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Tabla completa
-    with st.expander("📋 Ver tabla completa de riesgos"):
-        display = risk_view[[
-            "Channel", "Material Description", "risk_level",
-            "current_inventory", "forecast_13wk", "weeks_of_supply", "stockout_week"
-        ]].rename(columns={
-            "Channel": "Cliente",
-            "Material Description": "Producto",
-            "risk_level": "Nivel",
-            "current_inventory": "Inventario actual",
-            "forecast_13wk": "Demanda 13 sem.",
-            "weeks_of_supply": "Semanas cobertura",
-            "stockout_week": "Semana de quiebre",
-        })
-        st.dataframe(display.reset_index(drop=True), use_container_width=True, height=400)
+    # Tabla de reabastecimiento
+    nivel_emoji = {
+        "CRITICAL": "🔴 Crítico",
+        "HIGH":     "🟠 Alerta",
+        "MEDIUM":   "🟡 Revisar",
+        "LOW":      "🟢 Estable",
+    }
+
+    def fmt_quiebre(sw):
+        try:
+            return f"W{str(int(sw))[-2:]} 2025" if sw and not pd.isna(sw) else "Inminente"
+        except Exception:
+            return "—"
+
+    tabla = risk_view.copy()
+    tabla["Nivel"]            = tabla["risk_level"].map(nivel_emoji)
+    tabla["Cliente"]          = tabla["Channel"]
+    tabla["Producto"]         = tabla["Material Description"].str[:35]
+    tabla["A comprar (uds)"]  = (tabla["forecast_13wk"] - tabla["current_inventory"]).clip(lower=0).round(0).astype(int)
+    tabla["Cobertura (sem)"]  = tabla["weeks_of_supply"].round(1)
+    tabla["Quiebre"]          = tabla["stockout_week"].apply(fmt_quiebre)
+    tabla = tabla[["Nivel", "Cliente", "Producto", "A comprar (uds)", "Cobertura (sem)", "Quiebre"]]
+
+    def _color_row(row):
+        if "Crítico" in str(row["Nivel"]):
+            bg = "background-color: #fff5f5"
+        elif "Alerta" in str(row["Nivel"]):
+            bg = "background-color: #fffbf0"
+        else:
+            bg = ""
+        return [bg] * len(row)
+
+    styled = (
+        tabla.style
+        .apply(_color_row, axis=1)
+        .format({"A comprar (uds)": "{:,.0f}", "Cobertura (sem)": "{:.1f}"})
+        .hide(axis="index")
+    )
+    st.dataframe(styled, use_container_width=True, height=450)
