@@ -1,6 +1,6 @@
 """
-AI-DLC Demand Forecasting Dashboard
-Streamlit app — 4 secciones: Resumen, Tendencias, Forecasts, Riesgo de Inventario
+Dashboard Ejecutivo — Pronóstico de Demanda e Inventario
+Diseñado para dirección comercial: lenguaje de negocio, insights claros, acción inmediata.
 """
 from __future__ import annotations
 
@@ -13,547 +13,745 @@ import streamlit as st
 
 # ─── Configuración ────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="Demand Forecasting",
+    page_title="Pronóstico de Demanda",
     page_icon="📦",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
+# CSS personalizado
+st.markdown("""
+<style>
+    footer {visibility: hidden;}
+
+    /* Tarjetas de métricas */
+    .kpi-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px 20px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border-left: 5px solid #1a56db;
+    }
+    .kpi-card.red   { border-left-color: #e02424; }
+    .kpi-card.green { border-left-color: #0e9f6e; }
+    .kpi-card.amber { border-left-color: #c27803; }
+
+    .kpi-value {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #111827;
+        line-height: 1.1;
+    }
+    .kpi-label {
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin-top: 6px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .kpi-delta {
+        font-size: 0.9rem;
+        margin-top: 4px;
+        font-weight: 600;
+    }
+    .delta-up   { color: #0e9f6e; }
+    .delta-down { color: #e02424; }
+
+    /* Tarjetas de alerta */
+    .alert-card {
+        border-radius: 8px;
+        padding: 14px 18px;
+        margin-bottom: 10px;
+        border-left: 5px solid;
+    }
+    .alert-critical { background:#fff5f5; border-left-color:#e02424; }
+    .alert-high     { background:#fffbf0; border-left-color:#c27803; }
+
+    .alert-title { font-weight: 700; font-size: 0.95rem; color: #111827; }
+    .alert-body  { font-size: 0.85rem; color: #4b5563; margin-top: 3px; }
+
+    /* Separador de sección */
+    .section-header {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 8px 0 16px 0;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    /* Insight box */
+    .insight-box {
+        background: #eff6ff;
+        border-radius: 8px;
+        padding: 16px 20px;
+        border-left: 4px solid #1a56db;
+        margin-bottom: 12px;
+    }
+    .insight-box p { margin: 0; color: #1e40af; font-size: 0.95rem; }
+</style>
+""", unsafe_allow_html=True)
+
+
+# ─── Rutas ────────────────────────────────────────────────────────────────────
 SILVER_PATH    = Path("data/silver/silver_dataset.parquet")
 FORECASTS_PATH = Path("data/forecasts/forecasts.parquet")
 RISK_PATH      = Path("data/forecasts/inventory_risk.parquet")
 REPORTS_DIR    = Path("reports")
 
-RISK_COLORS = {
-    "CRITICAL": "#d62728",
-    "HIGH":     "#ff7f0e",
-    "MEDIUM":   "#ffdd57",
-    "LOW":      "#2ca02c",
-}
 
-# ─── Carga de datos (cacheada) ────────────────────────────────────────────────
-@st.cache_data(show_spinner=False)
-def load_silver() -> pd.DataFrame:
+# ─── Carga de datos ───────────────────────────────────────────────────────────
+@st.cache_data(show_spinner=False, ttl=60)
+def load_silver():
     df = pd.read_parquet(SILVER_PATH)
-    df["year_week"] = (
-        df["year_week"].astype(str).str.replace(r"\.0$", "", regex=True).astype(int)
-    )
+    df["year_week"] = df["year_week"].astype(str).str.replace(r"\.0$", "", regex=True).astype(int)
     return df
 
+@st.cache_data(show_spinner=False, ttl=60)
+def load_forecasts():
+    return pd.read_parquet(FORECASTS_PATH) if FORECASTS_PATH.exists() else None
 
 @st.cache_data(show_spinner=False, ttl=60)
-def load_forecasts() -> pd.DataFrame | None:
-    if not FORECASTS_PATH.exists():
-        return None
-    return pd.read_parquet(FORECASTS_PATH)
-
+def load_risk():
+    return pd.read_parquet(RISK_PATH) if RISK_PATH.exists() else None
 
 @st.cache_data(show_spinner=False, ttl=60)
-def load_risk() -> pd.DataFrame | None:
-    if not RISK_PATH.exists():
-        return None
-    return pd.read_parquet(RISK_PATH)
-
-
-@st.cache_data(show_spinner=False)
-def load_report(name: str) -> dict:
+def load_report(name):
     p = REPORTS_DIR / f"{name}.json"
-    if not p.exists():
-        return {}
-    with open(p) as f:
-        return json.load(f)
+    return json.load(open(p)) if p.exists() else {}
+
+
+def kpi(value, label, color="", delta="", delta_up=True):
+    delta_html = ""
+    if delta:
+        cls = "delta-up" if delta_up else "delta-down"
+        arrow = "▲" if delta_up else "▼"
+        delta_html = f'<div class="kpi-delta {cls}">{arrow} {delta}</div>'
+    st.markdown(f"""
+    <div class="kpi-card {color}">
+        <div class="kpi-value">{value}</div>
+        <div class="kpi-label">{label}</div>
+        {delta_html}
+    </div>""", unsafe_allow_html=True)
 
 
 # ─── Sidebar ──────────────────────────────────────────────────────────────────
-st.sidebar.title("📦 Demand Forecasting")
-st.sidebar.markdown("---")
-page = st.sidebar.radio(
-    "Navegación",
-    ["📊 Resumen", "📈 Tendencias Históricas", "🔮 Forecasts", "⚠️ Riesgo de Inventario"],
-)
-st.sidebar.markdown("---")
-if st.sidebar.button("🔄 Refrescar datos"):
-    st.cache_data.clear()
-    st.rerun()
-st.sidebar.caption("AI-DLC · Colombia · 2025")
+with st.sidebar:
+    st.image("https://cdn-icons-png.flaticon.com/512/2038/2038854.png", width=60)
+    st.markdown("## 📦 Pronóstico de Demanda")
+    st.markdown("**Análisis · Colombia · 2025**")
+    st.markdown("---")
+    page = st.radio("", [
+        "🏠  Resumen Ejecutivo",
+        "📈  Comportamiento de Ventas",
+        "🔮  Proyección de Demanda",
+        "🚨  Alertas de Inventario",
+    ], label_visibility="collapsed")
+    st.markdown("---")
+    if st.button("🔄  Actualizar datos", use_container_width=True):
+        st.cache_data.clear()
+        st.rerun()
+    st.caption("Datos actualizados al cierre de W33 · 2025")
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# PÁGINA 1 — RESUMEN
-# ═══════════════════════════════════════════════════════════════════════════════
-if page == "📊 Resumen":
-    st.title("📊 Resumen del Proyecto")
-    st.markdown("Visión general del dataset, calidad de datos y desempeño del modelo.")
+# ══════════════════════════════════════════════════════════════════════════════
+# PÁGINA 1 — RESUMEN EJECUTIVO
+# ══════════════════════════════════════════════════════════════════════════════
+if page == "🏠  Resumen Ejecutivo":
 
-    with st.spinner("Cargando datos..."):
-        silver = load_silver()
-        bench  = load_report("benchmark_report")
-        lgbm   = load_report("lgbm_report")
-        dq     = load_report("dq_report")
-        fc_rep = load_report("forecast_report")
+    st.markdown("# 🏠 Resumen Ejecutivo")
+    st.markdown("Visión general del negocio y principales hallazgos del análisis predictivo.")
+    st.markdown("---")
+
+    silver    = load_silver()
+    forecasts = load_forecasts()
+    risk      = load_risk()
+    risk_rep  = load_report("inventory_risk_report")
+    fc_rep    = load_report("forecast_report")
 
     sellin = silver[silver["Category"] == "Sell-in"]
+
+    # ── KPIs principales ──────────────────────────────────────────────────────
+    st.markdown('<div class="section-header">📊 Indicadores Clave</div>', unsafe_allow_html=True)
+    c1, c2, c3, c4 = st.columns(4)
+
     n_skus     = sellin[["Channel", "Material Description"]].drop_duplicates().shape[0]
     n_channels = sellin["Channel"].nunique()
-    n_weeks    = sellin["year_week"].nunique()
-    last_week  = int(sellin["year_week"].max())
-    dq_score   = dq.get("dq_metrics", {}).get("quality_score", "—")
-    if isinstance(dq_score, float):
-        dq_score = f"{dq_score * 100:.0f}/100"
 
-    # KPI row
-    k1, k2, k3, k4 = st.columns(4)
-    k1.metric("SKUs activos", f"{n_skus:,}")
-    k2.metric("Canales", f"{n_channels:,}")
-    k3.metric("Semanas de datos", f"{n_weeks:,}")
-    k4.metric("Calidad de datos", dq_score)
+    with c1:
+        kpi(f"{n_skus:,}", "Productos monitoreados")
+    with c2:
+        kpi(f"{n_channels:,}", "Clientes activos")
 
-    st.markdown("---")
-
-    # Modelo row
-    st.subheader("Desempeño del Modelo")
-    m1, m2, m3, m4 = st.columns(4)
-    best_model = bench.get("best_model", "—")
-    best_smape = bench.get("best_smape", "—")
-    lgbm_smape = lgbm.get("smape", "—")
-
-    m1.metric("Mejor baseline", best_model.replace("_", " ").title() if best_model != "—" else "—")
-    m2.metric("sMAPE baseline", f"{best_smape:.1f}%" if isinstance(best_smape, float) else "—")
-    m3.metric("sMAPE LightGBM", f"{lgbm_smape:.1f}%" if isinstance(lgbm_smape, float) else "—")
-    if isinstance(best_smape, float) and isinstance(lgbm_smape, float):
-        mejora = (best_smape - lgbm_smape) / best_smape * 100
-        m4.metric("Mejora vs. baseline", f"{mejora:.0f}%", delta=f"-{best_smape - lgbm_smape:.1f}pp")
-
-    st.markdown("---")
-
-    # Forecast resumen
-    if fc_rep:
-        st.subheader("Forecasts Generados")
-        f1, f2, f3 = st.columns(3)
-        f1.metric("SKUs con forecast", f"{fc_rep.get('n_skus_forecast', 0):,}")
-        f2.metric("Ventana de forecast",
-                  f"W{str(fc_rep.get('forecast_start',''))[-2:]}–W{str(fc_rep.get('forecast_end',''))[-2:]} 2025")
-        total = fc_rep.get("total_forecast_naive", 0)
-        f3.metric("Volumen total estimado (Naïve)", f"{total:,.0f} unidades")
+    if forecasts is not None:
+        total_fc = forecasts["forecast_naive"].sum()
+        with c3:
+            kpi(f"{total_fc:,.0f}", "Unidades proyectadas · próx. 13 semanas", color="green")
     else:
-        st.info("Forecasts aún no generados.")
+        with c3:
+            kpi("—", "Unidades proyectadas · próx. 13 semanas")
 
+    if risk is not None:
+        dist = risk_rep.get("risk_distribution", {})
+        n_criticos = dist.get("CRITICAL", 0) + dist.get("HIGH", 0)
+        pct = risk_rep.get("pct_at_risk", 0)
+        color_risk = "red" if pct > 15 else "amber" if pct > 5 else "green"
+        with c4:
+            kpi(f"{n_criticos:,}", "Productos en alerta de inventario", color=color_risk,
+                delta=f"{pct}% del catálogo", delta_up=False)
+    else:
+        with c4:
+            kpi("—", "Productos en alerta de inventario")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ── Insights principales ──────────────────────────────────────────────────
+    st.markdown('<div class="section-header">💡 Lo que debes saber</div>', unsafe_allow_html=True)
+
+    # Volumen histórico reciente
+    last4w = sellin[sellin["year_week"] >= 202530]["quantity"].sum()
+    prev4w = sellin[(sellin["year_week"] >= 202422) & (sellin["year_week"] <= 202425)]["quantity"].sum()
+    trend  = ((last4w - prev4w) / prev4w * 100) if prev4w > 0 else 0
+
+    col_ins1, col_ins2 = st.columns(2)
+    with col_ins1:
+        st.markdown(f"""
+        <div class="insight-box">
+        <p>📦 <strong>Volumen reciente (últimas 4 semanas):</strong> {last4w:,.0f} unidades vendidas.
+        {"La demanda muestra tendencia <strong>positiva</strong> frente al mismo período del año anterior." if trend >= 0 else "La demanda muestra una <strong>reducción</strong> frente al mismo período del año anterior."}</p>
+        </div>""", unsafe_allow_html=True)
+
+        if forecasts is not None:
+            wk_avg = forecasts.groupby("year_week")["forecast_naive"].sum().mean()
+            st.markdown(f"""
+            <div class="insight-box">
+            <p>🔮 <strong>Proyección próximas 13 semanas:</strong> Se estiman en promedio
+            <strong>{wk_avg:,.0f} unidades por semana</strong> basado en el comportamiento histórico estacional.</p>
+            </div>""", unsafe_allow_html=True)
+
+    with col_ins2:
+        if risk is not None:
+            dist = risk_rep.get("risk_distribution", {})
+            top_crit = risk_rep.get("top_critical_skus", [])
+            top1 = top_crit[0] if top_crit else None
+            st.markdown(f"""
+            <div class="insight-box">
+            <p>🚨 <strong>{dist.get('CRITICAL',0):,} productos</strong> agotarán su inventario
+            antes de que termine el horizonte de pronóstico. Se requiere reabastecimiento urgente.</p>
+            </div>""", unsafe_allow_html=True)
+
+            if top1:
+                sw = top1.get("stockout_week")
+                sw_str = f"W{str(sw)[-2:]} 2025" if sw else "próximas semanas"
+                st.markdown(f"""
+                <div class="insight-box">
+                <p>⚠️ <strong>Caso más crítico:</strong> {str(top1.get('Material Description',''))[:45]}
+                — inventario estimado agotado en <strong>{sw_str}</strong>.</p>
+                </div>""", unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ── Mini gráfico: histórico + forecast ───────────────────────────────────
+    if forecasts is not None:
+        st.markdown('<div class="section-header">📉 Tendencia reciente y proyección</div>', unsafe_allow_html=True)
+
+        hist_weekly = (
+            sellin[sellin["year_week"] >= 202470]
+            .groupby("year_week")["quantity"].sum().reset_index()
+            .rename(columns={"quantity": "valor"})
+            .assign(tipo="Ventas históricas")
+        )
+        fc_weekly = (
+            forecasts.groupby("year_week")["forecast_naive"].sum().reset_index()
+            .rename(columns={"forecast_naive": "valor"})
+            .assign(tipo="Proyección")
+        )
+        combined = pd.concat([hist_weekly, fc_weekly])
+        combined["semana"] = combined["year_week"].astype(str)
+
+        color_sc = alt.Scale(domain=["Ventas históricas", "Proyección"],
+                             range=["#1a56db", "#0e9f6e"])
+        dash_sc  = alt.Scale(domain=["Ventas históricas", "Proyección"],
+                             range=[[1, 0], [6, 3]])
+
+        mini = (
+            alt.Chart(combined)
+            .mark_line(strokeWidth=3, point=alt.OverlayMarkDef(size=50))
+            .encode(
+                x=alt.X("semana:O", title="Semana",
+                         axis=alt.Axis(labelAngle=-45, labelOverlap="greedy")),
+                y=alt.Y("valor:Q", title="Unidades"),
+                color=alt.Color("tipo:N", scale=color_sc,
+                                 legend=alt.Legend(orient="top", title="")),
+                strokeDash=alt.StrokeDash("tipo:N", scale=dash_sc),
+                tooltip=["semana:O", "tipo:N", alt.Tooltip("valor:Q", format=",.0f", title="Unidades")],
+            )
+            .properties(height=280)
+            .interactive()
+        )
+        st.altair_chart(mini, use_container_width=True)
+        st.caption("La línea punteada verde representa la proyección para las semanas 34–46 de 2025.")
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PÁGINA 2 — COMPORTAMIENTO DE VENTAS
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "📈  Comportamiento de Ventas":
+    st.markdown("# 📈 Comportamiento de Ventas")
+    st.markdown("Analiza el historial de ventas por cliente, producto y período.")
     st.markdown("---")
 
-    # Comparación modelos
-    if bench.get("model_summary"):
-        st.subheader("Comparación de Modelos Baseline")
-        rows = [
-            {"Modelo": k.replace("_", " ").title(), **{m.upper(): round(v, 2)
-             for m, v in vals.items() if m in ("smape", "wape", "mase")}}
-            for k, vals in bench["model_summary"].items()
-        ]
-        df_m = pd.DataFrame(rows).sort_values("SMAPE")
-        st.dataframe(df_m.reset_index(drop=True), use_container_width=True)
+    silver = load_silver()
+    sellin = silver[silver["Category"] == "Sell-in"].copy()
 
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# PÁGINA 2 — TENDENCIAS HISTÓRICAS
-# ═══════════════════════════════════════════════════════════════════════════════
-elif page == "📈 Tendencias Históricas":
-    st.title("📈 Tendencias Históricas")
-
-    with st.spinner("Cargando datos históricos..."):
-        silver = load_silver()
-
-    # Filtros
+    # Filtros en línea
     col_f1, col_f2, col_f3 = st.columns(3)
-    categories = sorted(silver["Category"].unique())
-    sel_cat = col_f1.selectbox("Categoría", categories, index=categories.index("Sell-in") if "Sell-in" in categories else 0)
-    channels = ["Todos"] + sorted(silver["Channel"].unique())
-    sel_ch = col_f2.selectbox("Canal", channels)
-    years = ["Todos"] + sorted(silver["year"].unique().tolist())
-    sel_yr = col_f3.selectbox("Año", years)
+    clientes = ["Todos los clientes"] + sorted(sellin["Channel"].unique())
+    sel_cl   = col_f1.selectbox("Cliente", clientes)
+    años     = ["Todos los años"] + sorted(sellin["year"].unique().tolist(), reverse=True)
+    sel_yr   = col_f2.selectbox("Año", años)
+    vista    = col_f3.selectbox("Agrupar por", ["Semana", "Mes (4 semanas)"])
 
-    df_f = silver[silver["Category"] == sel_cat].copy()
-    if sel_ch != "Todos":
-        df_f = df_f[df_f["Channel"] == sel_ch]
-    if sel_yr != "Todos":
-        df_f = df_f[df_f["year"] == sel_yr]
+    df = sellin.copy()
+    if sel_cl != "Todos los clientes":
+        df = df[df["Channel"] == sel_cl]
+    if sel_yr != "Todos los años":
+        df = df[df["year"] == sel_yr]
 
     st.markdown("---")
 
-    # Tendencia semanal
-    st.subheader("Volumen semanal")
-    weekly = df_f.groupby("year_week")["quantity"].sum().reset_index()
-    weekly["year_week_str"] = weekly["year_week"].astype(str)
-    chart_weekly = (
-        alt.Chart(weekly)
-        .mark_line(point=True, strokeWidth=2, color="#1f77b4")
+    # KPIs rápidos
+    k1, k2, k3 = st.columns(3)
+    with k1:
+        kpi(f"{df['quantity'].sum():,.0f}", "Unidades totales")
+    with k2:
+        kpi(f"{df[['Channel','Material Description']].drop_duplicates().shape[0]:,}", "Combinaciones cliente-producto")
+    with k3:
+        avg_wk = df.groupby("year_week")["quantity"].sum().mean()
+        kpi(f"{avg_wk:,.0f}", "Promedio semanal")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ── Tendencia de ventas ───────────────────────────────────────────────────
+    st.markdown('<div class="section-header">Tendencia de ventas en el tiempo</div>',
+                unsafe_allow_html=True)
+
+    if vista == "Semana":
+        trend_df = df.groupby("year_week")["quantity"].sum().reset_index()
+        trend_df["eje"] = trend_df["year_week"].astype(str)
+        x_title = "Semana"
+    else:
+        df["mes_idx"] = ((df["week_num"] - 1) // 4) + 1
+        df["mes_label"] = df["year"].astype(str) + "-M" + df["mes_idx"].astype(str).str.zfill(2)
+        trend_df = df.groupby("mes_label")["quantity"].sum().reset_index()
+        trend_df["eje"] = trend_df["mes_label"]
+        x_title = "Período (4 semanas)"
+
+    trend_chart = (
+        alt.Chart(trend_df)
+        .mark_area(
+            line={"color": "#1a56db", "strokeWidth": 2},
+            color=alt.Gradient(
+                gradient="linear",
+                stops=[alt.GradientStop(color="#1a56db", offset=0),
+                       alt.GradientStop(color="white", offset=1)],
+                x1=1, x2=1, y1=1, y2=0,
+            ),
+        )
         .encode(
-            x=alt.X("year_week_str:O", title="Semana", axis=alt.Axis(labelAngle=-45, labelOverlap="greedy")),
-            y=alt.Y("quantity:Q", title="Cantidad"),
-            tooltip=["year_week_str:O", alt.Tooltip("quantity:Q", format=",.0f")],
+            x=alt.X("eje:O", title=x_title,
+                     sort=None,
+                     axis=alt.Axis(labelAngle=-45, labelOverlap="greedy")),
+            y=alt.Y("quantity:Q", title="Unidades vendidas"),
+            tooltip=["eje:O", alt.Tooltip("quantity:Q", format=",.0f", title="Unidades")],
         )
         .properties(height=300)
         .interactive()
     )
-    st.altair_chart(chart_weekly, use_container_width=True)
+    st.altair_chart(trend_chart, use_container_width=True)
 
-    st.markdown("---")
+    st.markdown("<br>", unsafe_allow_html=True)
 
     col_l, col_r = st.columns(2)
 
-    # Top 10 SKUs por volumen
+    # ── Top 10 clientes ───────────────────────────────────────────────────────
     with col_l:
-        st.subheader("Top 10 SKUs por volumen")
-        top_skus = (
-            df_f.groupby("Material Description")["quantity"]
-            .sum()
-            .nlargest(10)
-            .reset_index()
-            .sort_values("quantity")
+        st.markdown('<div class="section-header">Top 10 clientes por volumen</div>',
+                    unsafe_allow_html=True)
+        top_cl = (
+            df.groupby("Channel")["quantity"].sum()
+            .nlargest(10).reset_index().sort_values("quantity")
+            .rename(columns={"Channel": "Cliente", "quantity": "Unidades"})
         )
-        top_skus["Material Description"] = top_skus["Material Description"].str[:30]
-        chart_top = (
-            alt.Chart(top_skus)
-            .mark_bar(color="#1f77b4")
+        chart_cl = (
+            alt.Chart(top_cl)
+            .mark_bar(color="#1a56db", cornerRadiusTopRight=4, cornerRadiusBottomRight=4)
             .encode(
-                y=alt.Y("Material Description:N", sort="-x", title=""),
-                x=alt.X("quantity:Q", title="Cantidad total"),
-                tooltip=["Material Description:N", alt.Tooltip("quantity:Q", format=",.0f")],
+                y=alt.Y("Cliente:N", sort="-x", title=""),
+                x=alt.X("Unidades:Q", title="Unidades vendidas"),
+                tooltip=["Cliente:N", alt.Tooltip("Unidades:Q", format=",.0f")],
             )
             .properties(height=320)
         )
-        st.altair_chart(chart_top, use_container_width=True)
+        st.altair_chart(chart_cl, use_container_width=True)
 
-    # Distribución por canal
+    # ── Top 10 productos ──────────────────────────────────────────────────────
     with col_r:
-        st.subheader("Volumen por canal")
-        by_channel = (
-            df_f.groupby("Channel")["quantity"]
-            .sum()
-            .nlargest(15)
-            .reset_index()
-            .sort_values("quantity")
+        st.markdown('<div class="section-header">Top 10 productos por volumen</div>',
+                    unsafe_allow_html=True)
+        top_pr = (
+            df.groupby("Material Description")["quantity"].sum()
+            .nlargest(10).reset_index().sort_values("quantity")
+            .rename(columns={"Material Description": "Producto", "quantity": "Unidades"})
         )
-        chart_ch = (
-            alt.Chart(by_channel)
-            .mark_bar(color="#ff7f0e")
+        top_pr["Producto"] = top_pr["Producto"].str[:35]
+        chart_pr = (
+            alt.Chart(top_pr)
+            .mark_bar(color="#0e9f6e", cornerRadiusTopRight=4, cornerRadiusBottomRight=4)
             .encode(
-                y=alt.Y("Channel:N", sort="-x", title=""),
-                x=alt.X("quantity:Q", title="Cantidad total"),
-                tooltip=["Channel:N", alt.Tooltip("quantity:Q", format=",.0f")],
+                y=alt.Y("Producto:N", sort="-x", title=""),
+                x=alt.X("Unidades:Q", title="Unidades vendidas"),
+                tooltip=["Producto:N", alt.Tooltip("Unidades:Q", format=",.0f")],
             )
             .properties(height=320)
         )
-        st.altair_chart(chart_ch, use_container_width=True)
+        st.altair_chart(chart_pr, use_container_width=True)
 
-    st.markdown("---")
+    # ── Comparativo anual ─────────────────────────────────────────────────────
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Comparativo anual de ventas</div>',
+                unsafe_allow_html=True)
 
-    # Heatmap Canal × Año
-    st.subheader("Volumen por Canal y Año")
-    heat_data = (
-        silver[silver["Category"] == sel_cat]
-        .groupby(["Channel", "year"])["quantity"]
-        .sum()
+    yoy = (
+        sellin.groupby(["year", "week_num"])["quantity"].sum()
         .reset_index()
+        .rename(columns={"year": "Año", "week_num": "Semana", "quantity": "Unidades"})
     )
-    top_ch = heat_data.groupby("Channel")["quantity"].sum().nlargest(20).index
-    heat_data = heat_data[heat_data["Channel"].isin(top_ch)]
-    heat_chart = (
-        alt.Chart(heat_data)
-        .mark_rect()
+    yoy["Año"] = yoy["Año"].astype(str)
+
+    yoy_chart = (
+        alt.Chart(yoy)
+        .mark_line(strokeWidth=2)
         .encode(
-            x=alt.X("year:O", title="Año"),
-            y=alt.Y("Channel:N", title="Canal", sort="-x"),
-            color=alt.Color("quantity:Q", scale=alt.Scale(scheme="blues"), title="Cantidad"),
-            tooltip=["Channel:N", "year:O", alt.Tooltip("quantity:Q", format=",.0f")],
+            x=alt.X("Semana:O", title="Semana del año"),
+            y=alt.Y("Unidades:Q", title="Unidades vendidas"),
+            color=alt.Color("Año:N",
+                            scale=alt.Scale(domain=["2023", "2024", "2025"],
+                                            range=["#9ca3af", "#60a5fa", "#1a56db"]),
+                            legend=alt.Legend(orient="top", title="Año")),
+            tooltip=["Año:N", "Semana:O", alt.Tooltip("Unidades:Q", format=",.0f")],
         )
-        .properties(height=400)
+        .properties(height=280)
+        .interactive()
     )
-    st.altair_chart(heat_chart, use_container_width=True)
+    st.altair_chart(yoy_chart, use_container_width=True)
+    st.caption("2025 muestra datos hasta la semana 33. Las semanas posteriores corresponden a la proyección.")
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# PÁGINA 3 — FORECASTS
-# ═══════════════════════════════════════════════════════════════════════════════
-elif page == "🔮 Forecasts":
-    st.title("🔮 Forecasts de Demanda")
+# ══════════════════════════════════════════════════════════════════════════════
+# PÁGINA 3 — PROYECCIÓN DE DEMANDA
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "🔮  Proyección de Demanda":
+    st.markdown("# 🔮 Proyección de Demanda")
+    st.markdown("Estimación de ventas para las **próximas 13 semanas** (W34–W46 · 2025).")
+    st.markdown("---")
 
     forecasts = load_forecasts()
     if forecasts is None:
-        st.warning("⏳ Los forecasts aún no han sido generados. Ejecuta: `python -m src.forecasting.forecast_generator`")
+        st.warning("Los pronósticos aún no están disponibles.")
         st.stop()
 
-    with st.spinner("Cargando datos históricos..."):
-        silver = load_silver()
+    silver = load_silver()
+    sellin = silver[silver["Category"] == "Sell-in"]
 
-    fc_rep = load_report("forecast_report")
+    # Filtros
+    col_f1, col_f2 = st.columns(2)
+    clientes = ["Todos los clientes"] + sorted(forecasts["Channel"].unique())
+    sel_cl   = col_f1.selectbox("Cliente", clientes, key="fc_cl")
+    fc_filt  = forecasts if sel_cl == "Todos los clientes" else forecasts[forecasts["Channel"] == sel_cl]
+    productos = ["Todos los productos"] + sorted(fc_filt["Material Description"].unique())
+    sel_pr    = col_f2.selectbox("Producto", productos, key="fc_pr")
+    if sel_pr != "Todos los productos":
+        fc_filt = fc_filt[fc_filt["Material Description"] == sel_pr]
 
     # KPIs
+    total_fc  = fc_filt["forecast_naive"].sum()
+    avg_wk_fc = fc_filt.groupby("year_week")["forecast_naive"].sum().mean()
+
     k1, k2, k3 = st.columns(3)
-    k1.metric("SKUs con forecast", f"{forecasts[['Channel','Material Description']].drop_duplicates().shape[0]:,}")
-    k2.metric("Horizonte", f"W{str(fc_rep.get('forecast_start',''))[-2:]}–W{str(fc_rep.get('forecast_end',''))[-2:]} 2025")
-    total = forecasts["forecast_naive"].sum()
-    k3.metric("Volumen total estimado", f"{total:,.0f} unidades")
+    with k1: kpi(f"{total_fc:,.0f}", "Unidades proyectadas · 13 semanas", color="green")
+    with k2: kpi(f"{avg_wk_fc:,.0f}", "Promedio semanal estimado")
+    with k3:
+        hist_filt = sellin.copy()
+        if sel_cl != "Todos los clientes":
+            hist_filt = hist_filt[hist_filt["Channel"] == sel_cl]
+        if sel_pr != "Todos los productos":
+            hist_filt = hist_filt[hist_filt["Material Description"] == sel_pr]
+        hist_avg = hist_filt[hist_filt["year_week"] >= 202470].groupby("year_week")["quantity"].sum().mean()
+        diff_pct = ((avg_wk_fc - hist_avg) / hist_avg * 100) if hist_avg > 0 else 0
+        kpi(f"{diff_pct:+.1f}%",
+            "vs. promedio reciente (últimas 9 semanas)",
+            color="green" if diff_pct >= 0 else "red",
+            delta="tendencia al alza" if diff_pct >= 0 else "tendencia a la baja",
+            delta_up=diff_pct >= 0)
 
-    st.markdown("---")
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    # Filtro por canal y SKU
-    col_f1, col_f2 = st.columns(2)
-    channels = ["Todos"] + sorted(forecasts["Channel"].unique())
-    sel_ch = col_f1.selectbox("Canal", channels, key="fc_ch")
+    # ── Gráfico principal: histórico + proyección ─────────────────────────────
+    st.markdown('<div class="section-header">Ventas históricas vs. proyección</div>',
+                unsafe_allow_html=True)
 
-    fc_filtered = forecasts if sel_ch == "Todos" else forecasts[forecasts["Channel"] == sel_ch]
-    mats = ["Todos"] + sorted(fc_filtered["Material Description"].unique())
-    sel_mat = col_f2.selectbox("Producto", mats, key="fc_mat")
+    hist_data = hist_filt[hist_filt["year_week"] >= 202440].groupby("year_week")["quantity"].sum().reset_index()
+    hist_data = hist_data.rename(columns={"quantity": "valor"}).assign(tipo="Histórico")
 
-    if sel_mat != "Todos":
-        fc_view = fc_filtered[fc_filtered["Material Description"] == sel_mat]
-    else:
-        fc_view = fc_filtered
+    fc_agg = fc_filt.groupby("year_week")["forecast_naive"].sum().reset_index()
+    fc_agg = fc_agg.rename(columns={"forecast_naive": "valor"}).assign(tipo="Proyección")
 
-    # Serie histórica + forecast
-    st.subheader("Serie histórica y predicción")
+    combined = pd.concat([hist_data, fc_agg])
+    combined["semana"] = combined["year_week"].astype(str)
 
-    hist_data = silver[silver["Category"] == "Sell-in"].copy()
-    if sel_ch != "Todos":
-        hist_data = hist_data[hist_data["Channel"] == sel_ch]
-    if sel_mat != "Todos":
-        hist_data = hist_data[hist_data["Material Description"] == sel_mat]
+    last_hist_wk = str(int(hist_data["year_week"].max()))
 
-    hist_agg = (
-        hist_data.groupby("year_week")["quantity"]
-        .sum().reset_index()
-        .rename(columns={"quantity": "value"})
-        .assign(tipo="Histórico")
-    )
-    hist_agg["year_week_str"] = hist_agg["year_week"].astype(str)
+    color_sc = alt.Scale(domain=["Histórico", "Proyección"],
+                          range=["#60a5fa", "#0e9f6e"])
+    dash_sc  = alt.Scale(domain=["Histórico", "Proyección"],
+                          range=[[1, 0], [5, 3]])
 
-    fc_agg = (
-        fc_view.groupby("year_week")[["forecast_lgbm", "forecast_naive"]]
-        .sum().reset_index()
-    )
-    fc_lgbm = (
-        fc_agg[["year_week", "forecast_lgbm"]]
-        .rename(columns={"forecast_lgbm": "value"})
-        .assign(tipo="LightGBM (ref.)")
-    )
-    fc_naive = (
-        fc_agg[["year_week", "forecast_naive"]]
-        .rename(columns={"forecast_naive": "value"})
-        .assign(tipo="Seasonal Naïve")
-    )
-    fc_lgbm["year_week_str"]  = fc_lgbm["year_week"].astype(str)
-    fc_naive["year_week_str"] = fc_naive["year_week"].astype(str)
-
-    # Últimas 26 semanas históricas + todas las forecast
-    hist_recent = hist_agg.tail(26)
-    combined = pd.concat([hist_recent, fc_lgbm, fc_naive], ignore_index=True)
-
-    color_scale = alt.Scale(
-        domain=["Histórico", "Seasonal Naïve", "LightGBM (ref.)"],
-        range=["#aec7e8", "#1f77b4", "#ff7f0e"],
-    )
-    stroke_scale = alt.Scale(
-        domain=["Histórico", "Seasonal Naïve", "LightGBM (ref.)"],
-        range=[[1, 0], [1, 0], [6, 3]],
-    )
-    chart = (
+    main_chart = (
         alt.Chart(combined)
-        .mark_line(strokeWidth=2, point=True)
+        .mark_line(strokeWidth=3, point=alt.OverlayMarkDef(size=60))
         .encode(
-            x=alt.X("year_week_str:O", title="Semana", axis=alt.Axis(labelAngle=-45, labelOverlap="greedy")),
-            y=alt.Y("value:Q", title="Cantidad"),
-            color=alt.Color("tipo:N", scale=color_scale, title="Serie"),
-            strokeDash=alt.StrokeDash("tipo:N", scale=stroke_scale),
-            tooltip=["year_week_str:O", "tipo:N", alt.Tooltip("value:Q", format=",.1f")],
-        )
-        .properties(height=350)
-        .interactive()
-    )
-    st.altair_chart(chart, use_container_width=True)
-
-    st.markdown("---")
-
-    # Top 10 SKUs por volumen forecast
-    st.subheader("Top 10 SKUs por volumen estimado")
-    top10 = (
-        forecasts.groupby(["Channel", "Material Description"])["forecast_naive"]
-        .sum()
-        .nlargest(10)
-        .reset_index()
-        .sort_values("forecast_naive")
-    )
-    top10["label"] = top10["Channel"].str[:10] + " · " + top10["Material Description"].str[:25]
-    chart_top = (
-        alt.Chart(top10)
-        .mark_bar(color="#1f77b4")
-        .encode(
-            y=alt.Y("label:N", sort="-x", title=""),
-            x=alt.X("forecast_naive:Q", title="Unidades estimadas (13 semanas)"),
-            tooltip=["Channel:N", "Material Description:N",
-                     alt.Tooltip("forecast_naive:Q", format=",.0f")],
+            x=alt.X("semana:O", sort=None, title="Semana",
+                     axis=alt.Axis(labelAngle=-45, labelOverlap="greedy")),
+            y=alt.Y("valor:Q", title="Unidades"),
+            color=alt.Color("tipo:N", scale=color_sc,
+                             legend=alt.Legend(orient="top", title="")),
+            strokeDash=alt.StrokeDash("tipo:N", scale=dash_sc),
+            tooltip=["semana:O", "tipo:N",
+                     alt.Tooltip("valor:Q", format=",.0f", title="Unidades")],
         )
         .properties(height=320)
+        .interactive()
     )
-    st.altair_chart(chart_top, use_container_width=True)
 
+    rule = (
+        alt.Chart(pd.DataFrame({"semana": [last_hist_wk]}))
+        .mark_rule(color="#e02424", strokeDash=[4, 4], strokeWidth=2)
+        .encode(x="semana:O")
+    )
+
+    st.altair_chart(main_chart + rule, use_container_width=True)
+    st.caption("La línea roja punteada marca el límite entre datos reales y proyección.")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ── Top 10 productos con mayor demanda estimada ───────────────────────────
+    st.markdown('<div class="section-header">Productos con mayor demanda estimada</div>',
+                unsafe_allow_html=True)
+
+    top10 = (
+        forecasts.groupby(["Channel", "Material Description"])["forecast_naive"]
+        .sum().nlargest(10).reset_index().sort_values("forecast_naive")
+        .rename(columns={"forecast_naive": "Unidades proyectadas"})
+    )
+    top10["Producto"] = top10["Channel"].str[:8] + " · " + top10["Material Description"].str[:30]
+
+    bar_top = (
+        alt.Chart(top10)
+        .mark_bar(color="#0e9f6e", cornerRadiusTopRight=4, cornerRadiusBottomRight=4)
+        .encode(
+            y=alt.Y("Producto:N", sort="-x", title=""),
+            x=alt.X("Unidades proyectadas:Q", title="Unidades estimadas (13 semanas)"),
+            tooltip=["Channel:N", "Material Description:N",
+                     alt.Tooltip("Unidades proyectadas:Q", format=",.0f")],
+        )
+        .properties(height=340)
+    )
+    st.altair_chart(bar_top, use_container_width=True)
+
+    # ── Tabla detalle ─────────────────────────────────────────────────────────
+    with st.expander("📋 Ver tabla completa de proyecciones por semana"):
+        show = (
+            fc_filt[["Channel", "Material Description", "year_week", "horizon_step", "forecast_naive"]]
+            .rename(columns={
+                "Channel": "Cliente",
+                "Material Description": "Producto",
+                "year_week": "Semana",
+                "horizon_step": "Horizonte",
+                "forecast_naive": "Unidades proyectadas",
+            })
+            .sort_values(["Cliente", "Producto", "Semana"])
+        )
+        st.dataframe(show, use_container_width=True)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PÁGINA 4 — ALERTAS DE INVENTARIO
+# ══════════════════════════════════════════════════════════════════════════════
+elif page == "🚨  Alertas de Inventario":
+    st.markdown("# 🚨 Alertas de Inventario")
+    st.markdown("Productos cuyo inventario actual **no cubre** la demanda proyectada.")
     st.markdown("---")
 
-    # Tabla detalle
-    with st.expander("📋 Tabla de forecasts detallada"):
-        show_cols = ["Channel", "Material Description", "year_week",
-                     "horizon_step", "forecast_lgbm", "forecast_naive"]
-        st.dataframe(
-            fc_view[show_cols].sort_values(["Channel", "Material Description", "year_week"]),
-            use_container_width=True,
-        )
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# PÁGINA 4 — RIESGO DE INVENTARIO
-# ═══════════════════════════════════════════════════════════════════════════════
-elif page == "⚠️ Riesgo de Inventario":
-    st.title("⚠️ Riesgo de Inventario")
-    st.markdown("SKUs donde el inventario actual podría no cubrir la demanda estimada.")
-
-    risk = load_risk()
+    risk    = load_risk()
+    risk_rep = load_report("inventory_risk_report")
     if risk is None:
-        st.warning("⏳ El scoring de inventario aún no se ha generado. Ejecuta: `python -m src.inventory.risk_scorer`")
+        st.warning("El análisis de inventario aún no está disponible.")
         st.stop()
 
-    risk_rep = load_report("inventory_risk_report")
-
-    # KPIs
     dist = risk_rep.get("risk_distribution", {})
-    k1, k2, k3, k4, k5 = st.columns(5)
-    k1.metric("SKUs analizados", f"{len(risk):,}")
-    k2.metric("🔴 CRITICAL", f"{dist.get('CRITICAL', 0):,}")
-    k3.metric("🟠 HIGH",     f"{dist.get('HIGH', 0):,}")
-    k4.metric("🟡 MEDIUM",   f"{dist.get('MEDIUM', 0):,}")
-    k5.metric("🟢 LOW",      f"{dist.get('LOW', 0):,}")
+
+    # ── Semáforo de riesgo ────────────────────────────────────────────────────
+    st.markdown('<div class="section-header">Estado general del inventario</div>',
+                unsafe_allow_html=True)
+
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        kpi(f"{dist.get('CRITICAL',0):,}", "🔴  Crítico — < 2 semanas", color="red")
+    with c2:
+        kpi(f"{dist.get('HIGH',0):,}", "🟠  Alerta — 2 a 4 semanas", color="amber")
+    with c3:
+        kpi(f"{dist.get('MEDIUM',0):,}", "🟡  Revisar — 4 a 8 semanas")
+    with c4:
+        kpi(f"{dist.get('LOW',0):,}", "🟢  Estable — más de 8 semanas", color="green")
 
     pct = risk_rep.get("pct_at_risk", 0)
-    if pct > 20:
-        st.error(f"⚠️  **{pct}%** de los SKUs están en riesgo de quiebre de stock (CRITICAL + HIGH)")
-    elif pct > 10:
-        st.warning(f"⚠️  **{pct}%** de los SKUs están en riesgo de quiebre de stock (CRITICAL + HIGH)")
+    st.markdown("<br>", unsafe_allow_html=True)
+    if pct > 15:
+        st.error(f"⚠️ **{pct}%** del catálogo requiere reabastecimiento urgente (Crítico + Alerta).")
+    elif pct > 5:
+        st.warning(f"⚠️ **{pct}%** del catálogo está en zona de riesgo.")
     else:
-        st.success(f"✅  **{pct}%** de los SKUs en riesgo de quiebre (CRITICAL + HIGH)")
+        st.success(f"✅ Solo el **{pct}%** del catálogo está en riesgo.")
 
     st.markdown("---")
 
-    col_l, col_r = st.columns([1, 2])
+    # ── Gráfico de cobertura ──────────────────────────────────────────────────
+    col_g1, col_g2 = st.columns([1, 2])
 
-    # Gráfico de distribución
-    with col_l:
-        st.subheader("Distribución de riesgo")
-        dist_df = pd.DataFrame([
-            {"Nivel": k, "SKUs": v, "color": RISK_COLORS[k]}
-            for k, v in dist.items() if v > 0
+    with col_g1:
+        st.markdown('<div class="section-header">Distribución de riesgo</div>',
+                    unsafe_allow_html=True)
+        pie_df = pd.DataFrame([
+            {"Nivel": "🔴 Crítico",  "Productos": dist.get("CRITICAL", 0), "_order": 0},
+            {"Nivel": "🟠 Alerta",   "Productos": dist.get("HIGH",     0), "_order": 1},
+            {"Nivel": "🟡 Revisar",  "Productos": dist.get("MEDIUM",   0), "_order": 2},
+            {"Nivel": "🟢 Estable",  "Productos": dist.get("LOW",      0), "_order": 3},
         ])
-        pie = (
-            alt.Chart(dist_df)
-            .mark_arc(innerRadius=60)
+        donut = (
+            alt.Chart(pie_df)
+            .mark_arc(innerRadius=55, outerRadius=90)
             .encode(
-                theta=alt.Theta("SKUs:Q"),
-                color=alt.Color(
-                    "Nivel:N",
-                    scale=alt.Scale(
-                        domain=list(RISK_COLORS.keys()),
-                        range=list(RISK_COLORS.values()),
-                    ),
-                    legend=alt.Legend(title="Nivel"),
-                ),
-                tooltip=["Nivel:N", "SKUs:Q"],
+                theta=alt.Theta("Productos:Q"),
+                color=alt.Color("Nivel:N",
+                                scale=alt.Scale(
+                                    domain=["🔴 Crítico","🟠 Alerta","🟡 Revisar","🟢 Estable"],
+                                    range=["#e02424","#c27803","#e3a008","#0e9f6e"]),
+                                legend=alt.Legend(orient="bottom", title="")),
+                order=alt.Order("_order:Q"),
+                tooltip=["Nivel:N", "Productos:Q"],
             )
             .properties(height=280)
         )
-        st.altair_chart(pie, use_container_width=True)
+        st.altair_chart(donut, use_container_width=True)
 
-    # Distribución de weeks_of_supply
-    with col_r:
-        st.subheader("Semanas de cobertura por SKU")
-        wos = risk[risk["weeks_of_supply"] < 20].copy()  # recortar outliers para el gráfico
-        hist_chart = (
-            alt.Chart(wos)
-            .mark_bar(color="#1f77b4", opacity=0.8)
+    with col_g2:
+        st.markdown('<div class="section-header">Semanas de cobertura por producto</div>',
+                    unsafe_allow_html=True)
+        wos_plot = risk[risk["weeks_of_supply"] <= 20].copy()
+        wos_plot["riesgo"] = wos_plot["weeks_of_supply"].apply(
+            lambda x: "Crítico" if x < 2 else ("Alerta" if x < 4 else "Estable")
+        )
+        hist_wos = (
+            alt.Chart(wos_plot)
+            .mark_bar(cornerRadiusTopLeft=3, cornerRadiusTopRight=3)
             .encode(
-                x=alt.X("weeks_of_supply:Q", bin=alt.Bin(maxbins=30),
-                         title="Semanas de cobertura"),
-                y=alt.Y("count():Q", title="Número de SKUs"),
+                x=alt.X("weeks_of_supply:Q",
+                         bin=alt.Bin(maxbins=25),
+                         title="Semanas de cobertura de inventario"),
+                y=alt.Y("count():Q", title="Número de productos"),
+                color=alt.Color("riesgo:N",
+                                scale=alt.Scale(
+                                    domain=["Crítico", "Alerta", "Estable"],
+                                    range=["#e02424", "#c27803", "#0e9f6e"]),
+                                legend=None),
                 tooltip=["count():Q"],
             )
             .properties(height=280)
         )
-        ref_lines = (
-            alt.Chart(pd.DataFrame([
-                {"x": 2, "label": "CRITICAL"},
-                {"x": 4, "label": "HIGH"},
-                {"x": 8, "label": "MEDIUM"},
-            ]))
-            .mark_rule(strokeDash=[4, 4], strokeWidth=1.5)
-            .encode(
-                x="x:Q",
-                color=alt.Color("label:N",
-                                scale=alt.Scale(
-                                    domain=["CRITICAL", "HIGH", "MEDIUM"],
-                                    range=["#d62728", "#ff7f0e", "#ffdd57"],
-                                )),
-            )
-        )
-        st.altair_chart(hist_chart + ref_lines, use_container_width=True)
+        st.altair_chart(hist_wos, use_container_width=True)
 
     st.markdown("---")
 
-    # Filtro por nivel de riesgo
-    st.subheader("SKUs en riesgo")
-    col_rf1, col_rf2 = st.columns(2)
-    levels = ["Todos"] + ["CRITICAL", "HIGH", "MEDIUM", "LOW"]
-    sel_level = col_rf1.selectbox("Nivel de riesgo", levels)
-    sel_ch_r  = col_rf2.selectbox(
-        "Canal", ["Todos"] + sorted(risk["Channel"].unique()), key="risk_ch"
+    # ── Lista de productos críticos ───────────────────────────────────────────
+    st.markdown('<div class="section-header">🔴 Productos críticos — acción inmediata requerida</div>',
+                unsafe_allow_html=True)
+
+    col_filt1, col_filt2 = st.columns(2)
+    nivel_sel = col_filt1.selectbox(
+        "Filtrar por nivel",
+        ["Crítico y Alerta", "Solo Crítico", "Solo Alerta", "Todos"],
+        key="risk_nivel"
+    )
+    cliente_sel = col_filt2.selectbox(
+        "Filtrar por cliente",
+        ["Todos los clientes"] + sorted(risk["Channel"].unique()),
+        key="risk_cl"
     )
 
-    risk_view = risk.copy()
-    if sel_level != "Todos":
-        risk_view = risk_view[risk_view["risk_level"] == sel_level]
-    if sel_ch_r != "Todos":
-        risk_view = risk_view[risk_view["Channel"] == sel_ch_r]
+    nivel_map = {
+        "Crítico y Alerta": ["CRITICAL", "HIGH"],
+        "Solo Crítico":     ["CRITICAL"],
+        "Solo Alerta":      ["HIGH"],
+        "Todos":            ["CRITICAL", "HIGH", "MEDIUM", "LOW"],
+    }
+    risk_view = risk[risk["risk_level"].isin(nivel_map[nivel_sel])].copy()
+    if cliente_sel != "Todos los clientes":
+        risk_view = risk_view[risk_view["Channel"] == cliente_sel]
 
-    display_cols = [
-        "Channel", "Material Description", "risk_level",
-        "current_inventory", "forecast_13wk", "weeks_of_supply",
-        "coverage_ratio", "stockout_week",
-    ]
+    # Cards para los top 8 más críticos
+    top_cards = risk_view.head(8)
+    for i in range(0, len(top_cards), 2):
+        cols = st.columns(2)
+        for j, col in enumerate(cols):
+            if i + j >= len(top_cards):
+                break
+            row = top_cards.iloc[i + j]
+            nivel = row["risk_level"]
+            css_class = "alert-critical" if nivel == "CRITICAL" else "alert-high"
+            emoji = "🔴" if nivel == "CRITICAL" else "🟠"
+            sw = row.get("stockout_week")
+            sw_str = f"Quiebre estimado: <strong>W{str(int(sw))[-2:]} 2025</strong>" if sw and not pd.isna(sw) else "Quiebre inminente"
+            inv_str = f"{row['current_inventory']:,.0f}"
+            dem_str = f"{row['forecast_13wk']:,.0f}"
+            wos_str = f"{row['weeks_of_supply']:.1f}"
+            col.markdown(f"""
+            <div class="alert-card {css_class}">
+                <div class="alert-title">{emoji} {str(row['Channel'])} · {str(row['Material Description'])[:40]}</div>
+                <div class="alert-body">
+                    {sw_str}<br>
+                    Inventario actual: <strong>{inv_str}</strong> uds. &nbsp;|&nbsp;
+                    Demanda proyectada 13s: <strong>{dem_str}</strong> uds. &nbsp;|&nbsp;
+                    Cobertura: <strong>{wos_str} semanas</strong>
+                </div>
+            </div>""", unsafe_allow_html=True)
 
-    def _style_risk(val):
-        colors = {"CRITICAL": "#ffd5d5", "HIGH": "#ffe5cc",
-                  "MEDIUM": "#fffacc", "LOW": "#d5f5d5"}
-        return f"background-color: {colors.get(val, '')}"
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    styled = (
-        risk_view[display_cols]
-        .reset_index(drop=True)
-        .style.applymap(_style_risk, subset=["risk_level"])
-        .format({
-            "current_inventory": "{:,.1f}",
-            "forecast_13wk":     "{:,.1f}",
-            "weeks_of_supply":   "{:.1f}",
-            "coverage_ratio":    "{:.2f}",
+    # Tabla completa
+    with st.expander("📋 Ver tabla completa de riesgos"):
+        display = risk_view[[
+            "Channel", "Material Description", "risk_level",
+            "current_inventory", "forecast_13wk", "weeks_of_supply", "stockout_week"
+        ]].rename(columns={
+            "Channel": "Cliente",
+            "Material Description": "Producto",
+            "risk_level": "Nivel",
+            "current_inventory": "Inventario actual",
+            "forecast_13wk": "Demanda 13 sem.",
+            "weeks_of_supply": "Semanas cobertura",
+            "stockout_week": "Semana de quiebre",
         })
-    )
-    st.dataframe(styled, use_container_width=True, height=420)
-
-    # Detalle: semana de quiebre
-    critical_rows = risk[
-        (risk["risk_level"] == "CRITICAL") & (risk["stockout_week"].notna())
-    ].head(5)
-    if len(critical_rows) > 0:
-        st.markdown("---")
-        st.subheader("🚨 Próximos quiebres de stock")
-        for _, row in critical_rows.iterrows():
-            sw = int(row["stockout_week"])
-            yr, wk = sw // 100, sw % 100
-            st.error(
-                f"**{row['Channel']}** · {row['Material Description'][:40]}  "
-                f"→ Quiebre estimado en **W{wk} {yr}**  "
-                f"(inventario: {row['current_inventory']:,.0f} | demanda 13s: {row['forecast_13wk']:,.0f})"
-            )
+        st.dataframe(display.reset_index(drop=True), use_container_width=True, height=400)
