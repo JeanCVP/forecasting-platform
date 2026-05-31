@@ -1,0 +1,108 @@
+{
+  "status": "success",
+  "total_runtime_s": 6.3,
+  "prefect_mode": true,
+  "run_at": "2026-05-31T17:30:58.539321+00:00",
+  "preflight": {
+    "gold_exists": true,
+    "silver_exists": true,
+    "reports_dir": true,
+    "models_dir_ready": true,
+    "gold_meta": {
+      "total_rows": 4609956,
+      "sellin_rows": 1536652,
+      "year_week_range": "202301 \u2013 202552",
+      "size_mb": 19.2
+    },
+    "all_ok": true
+  },
+  "silver_cache": {
+    "cached": true,
+    "rows": 1536652,
+    "size_mb": 0.6,
+    "rebuilt": false
+  },
+  "two_stage": {
+    "pipeline": "loop3_two_stage",
+    "run_at": "2026-05-31T17:30:58.525609+00:00",
+    "mlflow_run_id": "63802aa7ebf24ce09f5a2ad5ef23d522",
+    "category": "Sell-in",
+    "train_end": 202452,
+    "val_start": 202501,
+    "val_end": 202513,
+    "n_features": 16,
+    "feature_cols": [
+      "lag_1",
+      "lag_4",
+      "lag_52",
+      "rolling_mean_4",
+      "rolling_mean_12",
+      "rolling_std_12",
+      "weeks_since_last_sale",
+      "intermittent_flag",
+      "week_sin",
+      "week_cos",
+      "inventory_days_of_supply",
+      "lag_nonzero_1",
+      "lag_nonzero_4",
+      "lag_nonzero_52",
+      "demand_rate_12",
+      "zscore_vs_channel"
+    ],
+    "train_rows": 1151792,
+    "val_rows": 91856,
+    "train_demand_rate": 0.0548,
+    "stage1_classifier": {
+      "auc": 0.9593,
+      "f1": 0.0,
+      "best_iter": 5,
+      "model_path": "data/models/lgbm_stage1_classifier.txt",
+      "top_features": {
+        "rolling_mean_12": 4262796.963134766,
+        "inventory_days_of_supply": 4032751.389892578,
+        "weeks_since_last_sale": 1323434.7850341797,
+        "zscore_vs_channel": 1203038.8397216797,
+        "rolling_std_12": 533334.8314208984,
+        "intermittent_flag": 124621.08178710938,
+        "week_sin": 110653.19091796875,
+        "week_cos": 94431.61010742188,
+        "rolling_mean_4": 79145.63159179688,
+        "lag_1": 18346.280029296875
+      }
+    },
+    "stage2_regressor": {
+      "best_iter": 1,
+      "model_path": "data/models/lgbm_stage2_regressor.txt",
+      "non_zero_train_rows": 63091,
+      "top_features": {
+        "rolling_mean_12": 13727.95902633667,
+        "inventory_days_of_supply": 8340.086763381958,
+        "intermittent_flag": 3372.0170974731445,
+        "zscore_vs_channel": 919.9618091583252,
+        "rolling_mean_4": 788.8664093017578,
+        "week_sin": 30.464599609375,
+        "lag_1": 0.0,
+        "lag_4": 0.0,
+        "lag_52": 0.0,
+        "rolling_std_12": 0.0
+      }
+    },
+    "val_metrics": {
+      "smape": 193.8939,
+      "wape": 108.5078,
+      "active_wape": 97.0117,
+      "mase": 0.722,
+      "bias": -85.1985,
+      "slp": 0.9259,
+      "demand_f1": 0.1577,
+      "pinball_50": 5.3794,
+      "mae": 10.7589,
+      "rmse": 103.3253
+    },
+    "vs_loop2_baseline": {
+      "loop2_smape_seasonal_naive": 25.0294,
+      "loop3_smape_two_stage": 193.8939,
+      "improvement_smape_pct": -674.66
+    }
+  }
+}

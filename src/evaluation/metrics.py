@@ -103,6 +103,28 @@ def rmse(actual: np.ndarray, forecast: np.ndarray) -> float:
     return float(np.sqrt(np.mean((actual - forecast) ** 2)))
 
 
+def active_wape(actual: np.ndarray, forecast: np.ndarray) -> float:
+    """WAPE restricted to weeks where actual > 0 (ignores structural zeros)."""
+    mask = actual > 0
+    if mask.sum() == 0:
+        return 0.0
+    return wape(actual[mask], forecast[mask])
+
+
+def demand_f1(actual: np.ndarray, forecast: np.ndarray, threshold: float = 0.5) -> float:
+    """F1 for binary demand occurrence: actual>0 vs forecast>threshold."""
+    from sklearn.metrics import f1_score
+    y_true = (actual > 0).astype(int)
+    y_pred = (forecast > threshold).astype(int)
+    return float(f1_score(y_true, y_pred, zero_division=0.0))
+
+
+def pinball_loss(actual: np.ndarray, forecast: np.ndarray, quantile: float = 0.5) -> float:
+    """Pinball (quantile) loss at given quantile level."""
+    diff = actual - forecast
+    return float(np.mean(np.where(diff >= 0, quantile * diff, (quantile - 1.0) * diff)))
+
+
 def compute_all_metrics(
     actual: np.ndarray,
     forecast: np.ndarray,
@@ -122,13 +144,16 @@ def compute_all_metrics(
         return {k: 0.0 for k in ("smape", "wape", "mase", "bias", "slp", "mae", "rmse")}
 
     metrics = {
-        "smape":  smape(actual, forecast),
-        "wape":   wape(actual, forecast),
-        "mase":   mase(actual, forecast, train_series),
-        "bias":   bias_pct(actual, forecast),
-        "slp":    service_level_proxy(actual, forecast),
-        "mae":    mae(actual, forecast),
-        "rmse":   rmse(actual, forecast),
+        "smape":       smape(actual, forecast),
+        "wape":        wape(actual, forecast),
+        "active_wape": active_wape(actual, forecast),
+        "mase":        mase(actual, forecast, train_series),
+        "bias":        bias_pct(actual, forecast),
+        "slp":         service_level_proxy(actual, forecast),
+        "demand_f1":   demand_f1(actual, forecast),
+        "pinball_50":  pinball_loss(actual, forecast, quantile=0.5),
+        "mae":         mae(actual, forecast),
+        "rmse":        rmse(actual, forecast),
     }
 
     # Sanitize: replace any NaN/Inf with 0
