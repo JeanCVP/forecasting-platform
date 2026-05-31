@@ -100,6 +100,7 @@ st.markdown("""
 SILVER_PATH    = Path("data/silver/silver_dataset.parquet")
 FORECASTS_PATH = Path("data/forecasts/forecasts.parquet")
 RISK_PATH      = Path("data/forecasts/inventory_risk.parquet")
+CI_PATH        = Path("data/forecasts/loop6_ci_predictions.parquet")
 REPORTS_DIR    = Path("reports")
 
 
@@ -117,6 +118,14 @@ def load_forecasts():
 @st.cache_data(show_spinner=False, ttl=60)
 def load_risk():
     return pd.read_parquet(RISK_PATH) if RISK_PATH.exists() else None
+
+@st.cache_data(show_spinner=False, ttl=60)
+def load_ci_predictions():
+    if not CI_PATH.exists():
+        return None
+    df = pd.read_parquet(CI_PATH)
+    df["year_week"] = df["year_week"].astype(str).str.replace(r"\.0$", "", regex=True).astype(int)
+    return df
 
 @st.cache_data(show_spinner=False, ttl=60)
 def load_report(name):
@@ -503,10 +512,28 @@ elif page == "🔮  Proyección de Demanda":
     total_fc  = fc_filt["forecast_naive"].sum()
     avg_wk_fc = fc_filt.groupby("year_week")["forecast_naive"].sum().mean()
 
-    k1, k2, k3 = st.columns(3)
+    # Model quality KPIs from Loop 6 CV report
+    loop6_rep  = load_report("loop6_cv_report")
+    agg6       = loop6_rep.get("aggregate_metrics", {})
+    cv_aw      = agg6.get("active_wape", {}).get("mean")
+    cv_mase    = agg6.get("mase", {}).get("mean")
+
+    k1, k2, k3, k4, k5 = st.columns(5)
     with k1: kpi(f"{total_fc:,.0f}", "Unidades proyectadas · 71 semanas", color="green")
     with k2: kpi(f"{avg_wk_fc:,.0f}", "Promedio semanal estimado")
     with k3:
+        kpi(
+            f"{cv_aw:.1f}%" if cv_aw else "—",
+            "active_WAPE (CV 5 folds)",
+            color="green" if cv_aw and cv_aw < 80 else "",
+        )
+    with k4:
+        kpi(
+            f"{cv_mase:.3f}" if cv_mase else "—",
+            "MASE (CV 5 folds) — <1.0 supera al naïve",
+            color="green" if cv_mase and cv_mase < 1.0 else "",
+        )
+    with k5:
         hist_filt = sellin.copy()
         if sel_cl != "Todos los clientes":
             hist_filt = hist_filt[hist_filt["Channel"] == sel_cl]
@@ -568,8 +595,48 @@ elif page == "🔮  Proyección de Demanda":
         .encode(x="semana:O")
     )
 
-    st.altair_chart(main_chart + rule, width='stretch')
-    st.caption("La línea roja punteada marca el límite entre datos reales y proyección.")
+    # ── Intervalos de confianza Q10/Q90 (Loop 6) ─────────────────────────────
+    ci_df = load_ci_predictions()
+    ci_layer = alt.layer(main_chart, rule)
+    if ci_df is not None:
+        # Aggregate CI predictions by week (sum across SKUs)
+        ci_filt = ci_df.copy()
+        if sel_cl != "Todos los clientes":
+            ci_filt = ci_filt[ci_filt["Channel"] == sel_cl]
+        if sel_pr != "Todos los productos":
+            ci_filt = ci_filt[ci_filt["Material Description"] == sel_pr]
+        ci_agg = ci_filt.groupby("year_week").agg(
+            q10=("forecast_q10", "sum"),
+            q50=("forecast_q50", "sum"),
+            q90=("forecast_q90", "sum"),
+        ).reset_index()
+        ci_agg["semana"] = ci_agg["year_week"].astype(str)
+
+        band = (
+            alt.Chart(ci_agg)
+            .mark_area(opacity=0.18, color="#0e9f6e")
+            .encode(
+                x=alt.X("semana:O", sort=None),
+                y=alt.Y("q10:Q", title=""),
+                y2=alt.Y2("q90:Q"),
+                tooltip=[
+                    "semana:O",
+                    alt.Tooltip("q10:Q", format=",.0f", title="Q10"),
+                    alt.Tooltip("q50:Q", format=",.0f", title="Q50"),
+                    alt.Tooltip("q90:Q", format=",.0f", title="Q90"),
+                ],
+            )
+        )
+        ci_layer = alt.layer(band, main_chart, rule)
+
+    st.altair_chart(ci_layer, width='stretch')
+    if ci_df is not None:
+        st.caption(
+            "La banda verde muestra el intervalo de confianza Q10–Q90 del modelo Loop 6 "
+            "(validación W01–W13·2025). La línea roja punteada marca el límite datos reales / proyección."
+        )
+    else:
+        st.caption("La línea roja punteada marca el límite entre datos reales y proyección.")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
