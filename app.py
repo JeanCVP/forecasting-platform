@@ -99,6 +99,7 @@ st.markdown("""
 # ─── Rutas ────────────────────────────────────────────────────────────────────
 SILVER_PATH    = Path("data/silver/silver_dataset.parquet")
 FORECASTS_PATH = Path("data/forecasts/forecasts.parquet")
+BLENDED_PATH   = Path("data/forecasts/loop8_blended_forecasts.parquet")
 RISK_PATH      = Path("data/forecasts/inventory_risk.parquet")
 CI_PATH        = Path("data/forecasts/loop6_ci_predictions.parquet")
 REPORTS_DIR    = Path("reports")
@@ -114,6 +115,15 @@ def load_silver():
 @st.cache_data(show_spinner=False, ttl=60)
 def load_forecasts():
     return pd.read_parquet(FORECASTS_PATH) if FORECASTS_PATH.exists() else None
+
+@st.cache_data(show_spinner=False, ttl=60)
+def load_blended():
+    """Loop 8: LightGBM (330 SKUs activos) + Seasonal Naïve (resto). 17,001 SKUs, 71 semanas."""
+    if not BLENDED_PATH.exists():
+        return None
+    df = pd.read_parquet(BLENDED_PATH)
+    df["year_week"] = df["year_week"].astype(str).str.replace(r"\.0$", "", regex=True).astype(int)
+    return df
 
 @st.cache_data(show_spinner=False, ttl=60)
 def load_risk():
@@ -193,7 +203,9 @@ if page == "🏠  Resumen Ejecutivo":
     st.markdown("---")
 
     silver    = load_silver()
-    forecasts = load_forecasts()
+    _blended  = load_blended()
+    forecasts = (_blended.rename(columns={"forecast_q50": "forecast_naive"})
+                 if _blended is not None else load_forecasts())
     risk      = load_risk()
     risk_rep  = load_report("inventory_risk_report")
     fc_rep    = load_report("forecast_report")
@@ -488,12 +500,22 @@ elif page == "📈  Comportamiento de Ventas":
 elif page == "🔮  Proyección de Demanda":
     st.markdown("# 🔮 Proyección de Demanda")
     st.markdown("Estimación de ventas desde **W34·2025 hasta W52·2026** — resto de 2025 más todo el 2026 (71 semanas).")
-    st.markdown("---")
 
-    forecasts = load_forecasts()
-    if forecasts is None:
+    # Modelo activo
+    blended = load_blended()
+    forecasts_sn = load_forecasts()
+    if blended is not None:
+        forecasts = blended.rename(columns={"forecast_q50": "forecast_naive"})
+        st.info("Modelo activo: **LightGBM Loop 8** (330 SKUs alta frecuencia) + Seasonal Naïve (16,671 SKUs intermitentes) · 17,001 SKUs · 71 semanas · intervalos Q10/Q90")
+    elif forecasts_sn is not None:
+        forecasts = forecasts_sn
+        blended = None
+        st.info("Modelo activo: **Seasonal Naïve** (modelo base estadístico)")
+    else:
         st.warning("Los pronósticos aún no están disponibles.")
         st.stop()
+
+    st.markdown("---")
 
     silver = load_silver()
     sellin = silver[silver["Category"] == "Sell-in"]
@@ -595,48 +617,44 @@ elif page == "🔮  Proyección de Demanda":
         .encode(x="semana:O")
     )
 
-    # ── Intervalos de confianza Q10/Q90 (Loop 6) ─────────────────────────────
-    ci_df = load_ci_predictions()
+    # ── Intervalos de confianza Q10/Q90 (Loop 8 blended — futuro real) ──────────
     ci_layer = alt.layer(main_chart, rule)
-    if ci_df is not None:
-        # Aggregate CI predictions by week (sum across SKUs)
-        ci_filt = ci_df.copy()
+    ci_caption = "La línea roja punteada marca el límite entre datos reales y proyección."
+
+    # Prefer blended Q10/Q90 (covers full 71-week future horizon)
+    if blended is not None:
+        bl_filt = blended.copy()
         if sel_cl != "Todos los clientes":
-            ci_filt = ci_filt[ci_filt["Channel"] == sel_cl]
+            bl_filt = bl_filt[bl_filt["Channel"] == sel_cl]
         if sel_pr != "Todos los productos":
-            ci_filt = ci_filt[ci_filt["Material Description"] == sel_pr]
-        ci_agg = ci_filt.groupby("year_week").agg(
+            bl_filt = bl_filt[bl_filt["Material Description"] == sel_pr]
+        bl_agg = bl_filt.groupby("year_week").agg(
             q10=("forecast_q10", "sum"),
-            q50=("forecast_q50", "sum"),
             q90=("forecast_q90", "sum"),
         ).reset_index()
-        ci_agg["semana"] = ci_agg["year_week"].astype(str)
-
-        band = (
-            alt.Chart(ci_agg)
-            .mark_area(opacity=0.18, color="#0e9f6e")
-            .encode(
-                x=alt.X("semana:O", sort=None),
-                y=alt.Y("q10:Q", title=""),
-                y2=alt.Y2("q90:Q"),
-                tooltip=[
-                    "semana:O",
-                    alt.Tooltip("q10:Q", format=",.0f", title="Q10"),
-                    alt.Tooltip("q50:Q", format=",.0f", title="Q50"),
-                    alt.Tooltip("q90:Q", format=",.0f", title="Q90"),
-                ],
+        bl_agg["semana"] = bl_agg["year_week"].astype(str)
+        if len(bl_agg) > 0:
+            band = (
+                alt.Chart(bl_agg)
+                .mark_area(opacity=0.15, color="#0e9f6e")
+                .encode(
+                    x=alt.X("semana:O", sort=None),
+                    y=alt.Y("q10:Q", title=""),
+                    y2=alt.Y2("q90:Q"),
+                    tooltip=["semana:O",
+                             alt.Tooltip("q10:Q", format=",.0f", title="Q10 (pesimista)"),
+                             alt.Tooltip("q90:Q", format=",.0f", title="Q90 (optimista)")],
+                )
             )
-        )
-        ci_layer = alt.layer(band, main_chart, rule)
+            ci_layer = alt.layer(band, main_chart, rule)
+            ci_caption = (
+                "Banda verde = intervalo de confianza Q10–Q90 del modelo Loop 8 "
+                "(LightGBM + Seasonal Naïve, horizonte completo W34·2025–W52·2026). "
+                "La línea roja punteada separa datos reales de la proyección."
+            )
 
     st.altair_chart(ci_layer, width='stretch')
-    if ci_df is not None:
-        st.caption(
-            "La banda verde muestra el intervalo de confianza Q10–Q90 del modelo Loop 6 "
-            "(validación W01–W13·2025). La línea roja punteada marca el límite datos reales / proyección."
-        )
-    else:
-        st.caption("La línea roja punteada marca el límite entre datos reales y proyección.")
+    st.caption(ci_caption)
 
     st.markdown("<br>", unsafe_allow_html=True)
 

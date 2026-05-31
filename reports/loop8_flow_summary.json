@@ -1,0 +1,22 @@
+{
+  "status": "success",
+  "total_runtime_s": 1.1,
+  "run_at": "2026-05-31T18:09:46.923537+00:00",
+  "blended": {
+    "pipeline": "blended_forecast_loop8",
+    "run_at": "2026-05-31T18:09:46.855725+00:00",
+    "total_rows": 885677,
+    "n_skus": 17001,
+    "n_weeks": 71,
+    "week_range": "202534\u2013202652",
+    "source_breakdown": {
+      "seasonal_naive": 883987,
+      "loop7_recursive": 1690
+    },
+    "total_q50": 2879350.0,
+    "total_q90": 4581753.0,
+    "avg_weekly_q50": 40554.0,
+    "avg_weekly_q90": 64532.0,
+    "output_path": "data/forecasts/loop8_blended_forecasts.parquet"
+  }
+}
