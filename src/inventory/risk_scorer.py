@@ -5,10 +5,10 @@ para identificar SKUs en riesgo de quiebre de stock.
 
 Métricas por SKU:
   - current_inventory    : última lectura no-nula de Channel Inv.
-  - forecast_13wk        : suma forecast_lgbm en las próximas 13 semanas
+  - forecast_total        : suma forecast_lgbm en las próximas 13 semanas
   - avg_weekly_demand    : promedio semanal del forecast
   - weeks_of_supply      : current_inventory / avg_weekly_demand
-  - coverage_ratio       : current_inventory / forecast_13wk  (1.0 = exacto)
+  - coverage_ratio       : current_inventory / forecast_total  (1.0 = exacto)
   - stockout_week        : primera semana donde el inventario se agota
   - risk_level           : CRITICAL / HIGH / MEDIUM / LOW
 
@@ -102,7 +102,7 @@ def run_inventory_risk_scoring() -> dict:
     fc_agg = (
         forecasts.groupby(["Channel", "Material Description"])
         .agg(
-            forecast_13wk=("forecast_naive", "sum"),
+            forecast_total=("forecast_naive", "sum"),
             avg_weekly_demand=("forecast_naive", "mean"),
             forecast_start=("year_week", "min"),
             forecast_end=("year_week", "max"),
@@ -118,7 +118,7 @@ def run_inventory_risk_scoring() -> dict:
     # ── Métricas de riesgo ────────────────────────────────────────────────────
     eps = 1e-6
     risk["coverage_ratio"] = (
-        risk["current_inventory"] / (risk["forecast_13wk"] + eps)
+        risk["current_inventory"] / (risk["forecast_total"] + eps)
     ).round(4)
 
     risk["weeks_of_supply"] = (
@@ -166,7 +166,7 @@ def run_inventory_risk_scoring() -> dict:
     critical_skus = (
         risk[risk["risk_level"] == "CRITICAL"]
         [["Channel", "Material Description", "current_inventory",
-          "forecast_13wk", "weeks_of_supply", "stockout_week"]]
+          "forecast_total", "weeks_of_supply", "stockout_week"]]
         .head(20)
         .to_dict("records")
     )

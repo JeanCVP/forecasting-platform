@@ -1,0 +1,175 @@
+{
+  "pipeline": "inventory_risk_scoring",
+  "run_at": "2026-05-30T15:27:39.653819+00:00",
+  "forecast_window": "202601\u2013202652",
+  "n_skus_scored": 12081,
+  "risk_distribution": {
+    "CRITICAL": 982,
+    "HIGH": 426,
+    "MEDIUM": 649,
+    "LOW": 10024
+  },
+  "pct_at_risk": 11.7,
+  "top_critical_skus": [
+    {
+      "Channel": "CUSTOMER35",
+      "Material Description": "LED TV,UN65DU8200K,65,COLOMBIA,UWK40/U65",
+      "current_inventory": 1.0,
+      "forecast_total": 3913.0,
+      "weeks_of_supply": 0.01,
+      "stockout_week": 202601.0
+    },
+    {
+      "Channel": "CUSTOMER7",
+      "Material Description": "QLED TV,QN50Q65BAK,50,COLOMBIA,QWK20/Q50",
+      "current_inventory": 1.0,
+      "forecast_total": 3641.0,
+      "weeks_of_supply": 0.01,
+      "stockout_week": 202603.0
+    },
+    {
+      "Channel": "CUSTOMER7",
+      "Material Description": "QLED TV,QN55Q60DAK,55,COLOMBIA,QWK30/Q55",
+      "current_inventory": 2.0,
+      "forecast_total": 7319.0,
+      "weeks_of_supply": 0.01,
+      "stockout_week": 202603.0
+    },
+    {
+      "Channel": "CUSTOMER7",
+      "Material Description": "LED TV,UN43BU8000K,43,COLOMBIA,UNS10/U43",
+      "current_inventory": 1.0,
+      "forecast_total": 3006.0,
+      "weeks_of_supply": 0.02,
+      "stockout_week": 202604.0
+    },
+    {
+      "Channel": "CUSTOMER7",
+      "Material Description": "LED TV,UN65DU8000K,65,COLOMBIA,UWK40/U65",
+      "current_inventory": 2.0,
+      "forecast_total": 5158.0,
+      "weeks_of_supply": 0.02,
+      "stockout_week": 202603.0
+    },
+    {
+      "Channel": "CUSTOMER7",
+      "Material Description": "MOBILE,SM-A037M/DS,BLUE,LTC",
+      "current_inventory": 1.0,
+      "forecast_total": 2292.0,
+      "weeks_of_supply": 0.02,
+      "stockout_week": 202612.0
+    },
+    {
+      "Channel": "CUSTOMER7",
+      "Material Description": "MOBILE,SM-A226BR/DSN,LIGHT GREEN ,LTC",
+      "current_inventory": 1.0,
+      "forecast_total": 3400.0,
+      "weeks_of_supply": 0.02,
+      "stockout_week": 202601.0
+    },
+    {
+      "Channel": "CUSTOMER7",
+      "Material Description": "MOBILE,SM-A356E/DS,BLACK,LTC",
+      "current_inventory": 1.0,
+      "forecast_total": 3224.0,
+      "weeks_of_supply": 0.02,
+      "stockout_week": 202603.0
+    },
+    {
+      "Channel": "CUSTOMER7",
+      "Material Description": "MOBILE,SM-A356E/DS,LIGHT VIOLET,LTC",
+      "current_inventory": 1.0,
+      "forecast_total": 2190.0,
+      "weeks_of_supply": 0.02,
+      "stockout_week": 202603.0
+    },
+    {
+      "Channel": "CUSTOMER7",
+      "Material Description": "QLED TV,QN55Q60CAK,55,COLOMBIA,QWK30/Q55",
+      "current_inventory": 1.0,
+      "forecast_total": 2472.0,
+      "weeks_of_supply": 0.02,
+      "stockout_week": 202605.0
+    },
+    {
+      "Channel": "CUSTOMER8",
+      "Material Description": "MOBILE,SM-A226BR/DSN,LIGHT GREEN ,LTC",
+      "current_inventory": 2.0,
+      "forecast_total": 4300.0,
+      "weeks_of_supply": 0.02,
+      "stockout_week": 202606.0
+    },
+    {
+      "Channel": "CUSTOMER25",
+      "Material Description": "MOBILE,SM-A336M/DSN,BLACK,LTC",
+      "current_inventory": 1.0,
+      "forecast_total": 1690.0,
+      "weeks_of_supply": 0.03,
+      "stockout_week": 202604.0
+    },
+    {
+      "Channel": "CUSTOMER25",
+      "Material Description": "MOBILE,SM-A336M/DSN,LIGHT BLUE,LTC",
+      "current_inventory": 1.0,
+      "forecast_total": 1750.0,
+      "weeks_of_supply": 0.03,
+      "stockout_week": 202604.0
+    },
+    {
+      "Channel": "CUSTOMER7",
+      "Material Description": "LED MON,F24T350FHL,24,COLOMBIA,LS00/S24T",
+      "current_inventory": 1.0,
+      "forecast_total": 1995.0,
+      "weeks_of_supply": 0.03,
+      "stockout_week": 202602.0
+    },
+    {
+      "Channel": "CUSTOMER7",
+      "Material Description": "LED TV,UN55BU8000K,55,COLOMBIA,UNS10/U55",
+      "current_inventory": 1.0,
+      "forecast_total": 1498.0,
+      "weeks_of_supply": 0.03,
+      "stockout_week": 202606.0
+    },
+    {
+      "Channel": "CUSTOMER7",
+      "Material Description": "MOBILE,SM-A356E/DS,LIGHT BLUE,LTC",
+      "current_inventory": 1.0,
+      "forecast_total": 1500.0,
+      "weeks_of_supply": 0.03,
+      "stockout_week": 202603.0
+    },
+    {
+      "Channel": "CUSTOMER7",
+      "Material Description": "QLED TV,QN55QN85CAK,55,COLOMBIA,QWW30/Q5",
+      "current_inventory": 1.0,
+      "forecast_total": 1510.0,
+      "weeks_of_supply": 0.03,
+      "stockout_week": 202605.0
+    },
+    {
+      "Channel": "CUSTOMER20",
+      "Material Description": "MOBILE,SM-A356E,BLACK,COM",
+      "current_inventory": 16.0,
+      "forecast_total": 20924.0,
+      "weeks_of_supply": 0.04,
+      "stockout_week": 202601.0
+    },
+    {
+      "Channel": "CUSTOMER24",
+      "Material Description": "MOBILE,SM-A145M/DS,BLACK,LTC",
+      "current_inventory": 20.0,
+      "forecast_total": 25038.0,
+      "weeks_of_supply": 0.04,
+      "stockout_week": 202612.0
+    },
+    {
+      "Channel": "CUSTOMER25",
+      "Material Description": "MOBILE,SM-A057M,SILVER,LTC",
+      "current_inventory": 1.0,
+      "forecast_total": 1188.0,
+      "weeks_of_supply": 0.04,
+      "stockout_week": 202603.0
+    }
+  ]
+}

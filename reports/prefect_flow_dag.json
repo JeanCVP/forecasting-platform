@@ -1,0 +1,5 @@
+{
+  "pipeline": "loop2_training_flow",
+  "prefect_available": true,
+  "generated_at": "2026-05-29T10:41:54.520525+00:00"
+}

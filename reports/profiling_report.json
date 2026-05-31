@@ -1,0 +1,34 @@
+{
+  "pipeline": "profiling",
+  "run_at": "2026-05-29T13:48:25.654216+00:00",
+  "datasets": {
+    "silver": {
+      "exists": true,
+      "rows": 4609956,
+      "columns": 7,
+      "file_mb": 2.36,
+      "memory_mb": 1275.49
+    },
+    "gold": {
+      "exists": true,
+      "rows": 4609956,
+      "columns": 18,
+      "file_mb": 19.24,
+      "memory_mb": 1681.17
+    }
+  },
+  "baseline_inference_1k_skus": {
+    "n_skus": 1000,
+    "horizon": 13,
+    "total_s": 0.007,
+    "ms_per_sku": 0.007
+  },
+  "reports_present": {
+    "ingestion_report": true,
+    "dq_report": true,
+    "feature_report": true,
+    "validation_report": true,
+    "benchmark_report": true,
+    "lgbm_report": true
+  }
+}

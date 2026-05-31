@@ -1,0 +1,119 @@
+{
+  "pipeline": "churn_analysis",
+  "run_at": "2026-05-30T19:12:57.858193+00:00",
+  "reference_week": 202533,
+  "category": "Sell-in",
+  "weeks_in_universe": 137,
+  "universe_range": "202301\u2013202533",
+  "total_clients": 83,
+  "never_bought_sellin": 15,
+  "risk_distribution": {
+    "ALTO": 16,
+    "MEDIO": 9,
+    "BAJO": 0,
+    "ACTIVO": 58
+  },
+  "pct_high_risk": 19.3,
+  "top_10_alto_risk": [
+    {
+      "Channel": "CUSTOMER37",
+      "last_purchase_week": 202312,
+      "weeks_since_last_purchase": 125,
+      "active_weeks_pct": 1.46,
+      "avg_weekly_volume": 2.3212,
+      "last_13w_avg": 0.0,
+      "volume_change_pct": 0.0,
+      "trend_slope": 0.0
+    },
+    {
+      "Channel": "CUSTOMER61",
+      "last_purchase_week": 202322,
+      "weeks_since_last_purchase": 115,
+      "active_weeks_pct": 4.38,
+      "avg_weekly_volume": 2.0511,
+      "last_13w_avg": 0.0,
+      "volume_change_pct": 0.0,
+      "trend_slope": 0.0
+    },
+    {
+      "Channel": "CUSTOMER49",
+      "last_purchase_week": 202325,
+      "weeks_since_last_purchase": 112,
+      "active_weeks_pct": 5.11,
+      "avg_weekly_volume": 2.9562,
+      "last_13w_avg": 0.0,
+      "volume_change_pct": 0.0,
+      "trend_slope": 0.0
+    },
+    {
+      "Channel": "CUSTOMER32",
+      "last_purchase_week": 202326,
+      "weeks_since_last_purchase": 111,
+      "active_weeks_pct": 0.73,
+      "avg_weekly_volume": 0.3066,
+      "last_13w_avg": 0.0,
+      "volume_change_pct": 0.0,
+      "trend_slope": 0.0
+    },
+    {
+      "Channel": "CUSTOMER21",
+      "last_purchase_week": 202331,
+      "weeks_since_last_purchase": 106,
+      "active_weeks_pct": 5.11,
+      "avg_weekly_volume": 15.6715,
+      "last_13w_avg": 0.0,
+      "volume_change_pct": 0.0,
+      "trend_slope": 0.0
+    },
+    {
+      "Channel": "CUSTOMER14",
+      "last_purchase_week": 202338,
+      "weeks_since_last_purchase": 99,
+      "active_weeks_pct": 0.73,
+      "avg_weekly_volume": 0.365,
+      "last_13w_avg": 0.0,
+      "volume_change_pct": 0.0,
+      "trend_slope": 0.0
+    },
+    {
+      "Channel": "CUSTOMER77",
+      "last_purchase_week": 202347,
+      "weeks_since_last_purchase": 90,
+      "active_weeks_pct": 18.98,
+      "avg_weekly_volume": 385.9416,
+      "last_13w_avg": 0.0,
+      "volume_change_pct": 0.0,
+      "trend_slope": 0.0
+    },
+    {
+      "Channel": "CUSTOMER11",
+      "last_purchase_week": 202348,
+      "weeks_since_last_purchase": 89,
+      "active_weeks_pct": 11.68,
+      "avg_weekly_volume": 12.7737,
+      "last_13w_avg": 0.0,
+      "volume_change_pct": 0.0,
+      "trend_slope": 0.0
+    },
+    {
+      "Channel": "CUSTOMER60",
+      "last_purchase_week": 202414,
+      "weeks_since_last_purchase": 71,
+      "active_weeks_pct": 5.84,
+      "avg_weekly_volume": 4.0657,
+      "last_13w_avg": 0.0,
+      "volume_change_pct": 0.0,
+      "trend_slope": 0.0
+    },
+    {
+      "Channel": "CUSTOMER67",
+      "last_purchase_week": 202430,
+      "weeks_since_last_purchase": 55,
+      "active_weeks_pct": 59.85,
+      "avg_weekly_volume": 261.4234,
+      "last_13w_avg": 0.0,
+      "volume_change_pct": 0.0,
+      "trend_slope": 0.0
+    }
+  ]
+}

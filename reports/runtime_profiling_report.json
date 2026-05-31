@@ -1,0 +1,106 @@
+{
+  "pipeline": "profiling",
+  "run_at": "2026-05-27T10:38:29.702873+00:00",
+  "python_version": "3.12.3 (main, Mar  3 2026, 12:15:18) [GCC 13.3.0]",
+  "cpu_count": 1,
+  "initial_rss_mb": 65.7,
+  "data_loading": {
+    "full_load_s": 3.24,
+    "optimized_load_s": 2.8,
+    "speedup_factor": 1.16,
+    "full_df_mb": 1058.8,
+    "optimized_df_mb": 69.4,
+    "memory_reduction_pct": 93.4,
+    "rss_delta_mb": 494.0,
+    "row_count": 4609956
+  },
+  "forecaster_throughput": {
+    "n_skus_benchmark": 1000,
+    "ts_length": 104,
+    "models": {
+      "seasonal_naive": {
+        "total_s": 0.02,
+        "skus_per_sec": 49779.0,
+        "ms_per_sku": 0.02
+      },
+      "rolling_seasonal_mean": {
+        "total_s": 0.142,
+        "skus_per_sec": 7067.0,
+        "ms_per_sku": 0.142
+      },
+      "croston": {
+        "total_s": 0.029,
+        "skus_per_sec": 33934.0,
+        "ms_per_sku": 0.029
+      },
+      "sba": {
+        "total_s": 0.047,
+        "skus_per_sec": 21198.0,
+        "ms_per_sku": 0.047
+      },
+      "tsb": {
+        "total_s": 0.057,
+        "skus_per_sec": 17462.0,
+        "ms_per_sku": 0.057
+      }
+    }
+  },
+  "vectorization": {
+    "array_size": 500000,
+    "python_loop_sum_s": 0.0466,
+    "numpy_sum_s": 0.000481,
+    "numpy_speedup": 97.0,
+    "pandas_groupby_s": 0.0107,
+    "numpy_split_s": 0.0538,
+    "recommendation": "Use numpy split for group operations >100K rows"
+  },
+  "pipeline_stages": {
+    "read_silver": {
+      "elapsed_s": 3.45,
+      "rss_delta_mb": 47.1,
+      "df_mb": 1058.8
+    },
+    "filter_sellin": {
+      "elapsed_s": 0.709,
+      "rss_delta_mb": 0.0,
+      "rows": 1536652
+    },
+    "sort_by_sku_time": {
+      "elapsed_s": 0.349
+    },
+    "group_encode": {
+      "elapsed_s": 0.297
+    }
+  },
+  "bottlenecks": [
+    {
+      "stage": "read_silver",
+      "elapsed_s": 3.45,
+      "pct_of_total": 71.8
+    },
+    {
+      "stage": "filter_sellin",
+      "elapsed_s": 0.709,
+      "pct_of_total": 14.8
+    },
+    {
+      "stage": "sort_by_sku_time",
+      "elapsed_s": 0.349,
+      "pct_of_total": 7.3
+    },
+    {
+      "stage": "group_encode",
+      "elapsed_s": 0.297,
+      "pct_of_total": 6.2
+    }
+  ],
+  "final_rss_mb": 606.7,
+  "recommendations": [
+    "Apply dtype optimization: 93% RAM reduction",
+    "Slowest model: rolling_seasonal_mean (0.1ms/SKU) \u2014 consider optimizing",
+    "Fastest model: seasonal_naive (0.02ms/SKU)",
+    "Numpy speedup over Python loops: 97x",
+    "Top bottleneck: read_silver",
+    "For 17K SKUs \u00d7 5 models: total CV runtime estimated from throughput numbers above"
+  ]
+}

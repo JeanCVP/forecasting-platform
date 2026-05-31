@@ -1,0 +1,56 @@
+{
+  "pipeline": "benchmark_report",
+  "run_at": "2026-05-29T13:48:11.616533+00:00",
+  "rank_metric": "smape",
+  "best_model": "seasonal_naive",
+  "best_smape": 25.0294,
+  "n_folds": 5,
+  "n_models": 5,
+  "model_summary": {
+    "seasonal_naive": {
+      "smape": 25.0294,
+      "wape": 261.017,
+      "mase": 1.6594,
+      "bias": 88.7832,
+      "slp": 0.938,
+      "mae": 16.8738,
+      "rmse": 168.0045
+    },
+    "rolling_seasonal_mean": {
+      "smape": 64.0357,
+      "wape": 201.9629,
+      "mase": 1.2844,
+      "bias": 41.5998,
+      "slp": 0.941,
+      "mae": 13.1775,
+      "rmse": 113.2805
+    },
+    "tsb": {
+      "smape": 124.5415,
+      "wape": 179.4894,
+      "mase": 1.142,
+      "bias": 29.3226,
+      "slp": 0.9443,
+      "mae": 11.7683,
+      "rmse": 98.8114
+    },
+    "croston": {
+      "smape": 125.5168,
+      "wape": 287.4808,
+      "mase": 1.8233,
+      "bias": 118.745,
+      "slp": 0.9394,
+      "mae": 18.3913,
+      "rmse": 109.28
+    },
+    "sba": {
+      "smape": 125.6096,
+      "wape": 277.883,
+      "mase": 1.7626,
+      "bias": 107.8077,
+      "slp": 0.9388,
+      "mae": 17.7967,
+      "rmse": 107.8593
+    }
+  }
+}

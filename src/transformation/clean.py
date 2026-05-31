@@ -23,6 +23,39 @@ ID_COLS = ["Channel", "Material Description", "Category"]
 VALID_CATEGORIES = {"Sell-in", "Cust. Sales", "Channel Inv."}
 ANOMALY_STD = 4.0
 
+_COLORS = {
+    "BLACK","WHITE","BLUE","BEIGE","GREEN","RED","YELLOW","GOLD","SILVER",
+    "GRAY","GREY","PINK","PURPLE","VIOLET","CREAM","ORANGE","BROWN","NAVY",
+    "LIGHT BLUE","DARK BLUE","LIGHT GREEN","PHANTOM","LAVENDER","GRAPHITE",
+    "TITANIUM","MYSTIC","AWESOME",
+}
+_COUNTRY_CODES = {
+    "LTC","CO","COO","BR","PE","AR","CL","MX","EC","VE","BOL",
+    "PAN","GTM","CRI","HND","SLV","NIC","DOM","PRI","USA","R410A",
+}
+
+
+def _parse_material(desc: str) -> tuple[str, str, str, str]:
+    """Extract (category, model, color, country) from concatenated description."""
+    if not isinstance(desc, str) or not desc.strip():
+        return ("", "", "", "")
+    parts = [p.strip() for p in desc.split(",")]
+    category = parts[0] if parts else ""
+    model    = parts[1] if len(parts) > 1 else ""
+    # Color: first token that matches known colors (case-insensitive)
+    color = ""
+    for p in parts[2:]:
+        if p.upper() in _COLORS:
+            color = p
+            break
+    # Country: last token if it looks like a country code
+    country = ""
+    if parts:
+        last = parts[-1].strip()
+        if last.upper() in _COUNTRY_CODES or (last.isalpha() and 2 <= len(last) <= 3):
+            country = last
+    return category, model, color, country
+
 logging.basicConfig(level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s",
     handlers=[logging.StreamHandler(sys.stderr)])
@@ -154,6 +187,13 @@ def run_cleaning() -> pd.DataFrame:
 
     # Filter valid categories
     df = df[df["Category"].isin(VALID_CATEGORIES)]
+
+    # Parse Material Description attributes
+    parsed = df["Material Description"].apply(
+        lambda d: pd.Series(_parse_material(d),
+                            index=["product_category","product_model","product_color","product_country"])
+    )
+    df = pd.concat([df, parsed], axis=1)
 
     # Sort
     df = df.sort_values(["Channel", "Material Description", "Category", "year", "week_num"])

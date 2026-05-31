@@ -1,0 +1,16 @@
+{
+  "pipeline": "lgbm_training",
+  "run_at": "2026-05-29T13:48:22.858116+00:00",
+  "category": "Sell-in",
+  "train_end": 202452,
+  "val_start": 202501,
+  "val_end": 202513,
+  "train_rows": 1151792,
+  "val_rows": 91856,
+  "n_features": 11,
+  "best_iteration": 393,
+  "smape": 10.5265,
+  "wape": 54.8719,
+  "mae": 5.4407,
+  "model_path": "data/models/lgbm_global.txt"
+}

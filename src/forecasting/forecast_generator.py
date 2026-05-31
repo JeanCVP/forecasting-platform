@@ -23,7 +23,7 @@ FORECASTS_DIR = Path("data/forecasts")
 REPORTS_DIR   = Path("reports")
 
 CATEGORY        = "Sell-in"
-HORIZON         = 13
+HORIZON         = 71   # 19 semanas resto 2025 (W34-W52) + 52 semanas 2026
 MIN_HISTORY     = 26
 WEEKS_IN_YEAR   = 52.18
 
@@ -150,7 +150,7 @@ def run_forecast_generation(horizon: int = HORIZON) -> dict:
     )
     df = df.sort_values(["Channel", "Material Description", "year", "week_num"])
 
-    # Find last week with any data
+    # Last week with actual non-zero sales = real business cutoff
     last_yw = int(df[df["quantity"] > 0]["year_week"].max())
     future_wks = _future_weeks(last_yw, horizon)
     log.info(f"Last data week: {last_yw} | Forecast: {future_wks[0]}–{future_wks[-1]} ({horizon} weeks)")

@@ -1,0 +1,64 @@
+{
+  "pipeline": "forecast_generation",
+  "last_data_week": 202552,
+  "forecast_start": 202601,
+  "forecast_end": 202652,
+  "horizon_weeks": 52,
+  "n_skus_forecast": 17001,
+  "n_skus_skipped": 0,
+  "total_rows": 884052,
+  "total_forecast_naive": 2833413.0,
+  "total_forecast_lgbm": 325.0,
+  "top10_skus_by_volume": [
+    {
+      "Channel": "CUSTOMER67",
+      "Material Description": "MOBILE,SM-A145M/DS,BLACK,LTC",
+      "total_forecast": 47.11
+    },
+    {
+      "Channel": "CUSTOMER67",
+      "Material Description": "MOBILE,SM-F946B/DS,BEIGE,LTC",
+      "total_forecast": 27.44
+    },
+    {
+      "Channel": "CUSTOMER35",
+      "Material Description": "MOBILE,SM-F741B,LIGHT BLUE,COO",
+      "total_forecast": 27.25
+    },
+    {
+      "Channel": "CUSTOMER67",
+      "Material Description": "MOBILE,SM-F946B/DS,BLACK,LTC",
+      "total_forecast": 21.45
+    },
+    {
+      "Channel": "CUSTOMER83",
+      "Material Description": "CAC,13.4,KW,SETIN,CO,R410A",
+      "total_forecast": 20.7
+    },
+    {
+      "Channel": "CUSTOMER35",
+      "Material Description": "TABLET,SM-X110,SILVER,COO",
+      "total_forecast": 20.17
+    },
+    {
+      "Channel": "CUSTOMER3",
+      "Material Description": "CAC,10.0,KW,SETIN,HP,R410A",
+      "total_forecast": 19.23
+    },
+    {
+      "Channel": "CUSTOMER3",
+      "Material Description": "PMA,6.5,KW,SETIN,HP,R410A",
+      "total_forecast": 18.740000000000002
+    },
+    {
+      "Channel": "CUSTOMER83",
+      "Material Description": "CAC,7.0,KW,SETIN,HP,R410A",
+      "total_forecast": 18.53
+    },
+    {
+      "Channel": "CUSTOMER35",
+      "Material Description": "MOBILE,SM-A045M/DS,BLACK,LTC",
+      "total_forecast": 17.48
+    }
+  ]
+}
