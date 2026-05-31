@@ -126,7 +126,15 @@ def _optimize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def run_two_stage_training() -> dict:
+def _optimal_threshold_youden(y_true: np.ndarray, y_prob: np.ndarray) -> float:
+    """Threshold that maximises Youden's J = TPR - FPR on the validation set."""
+    from sklearn.metrics import roc_curve
+    fpr, tpr, thresholds = roc_curve(y_true, y_prob)
+    j = tpr - fpr
+    return float(thresholds[int(np.argmax(j))])
+
+
+def run_two_stage_training(tune_threshold: bool = True) -> dict:
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -187,8 +195,19 @@ def run_two_stage_training() -> dict:
         demand_probs_val = clf_model.predict(X_val).astype("float32")
         from sklearn.metrics import roc_auc_score, f1_score
         clf_auc = float(roc_auc_score(y_val_clf, demand_probs_val))
-        clf_f1  = float(f1_score(y_val_clf, (demand_probs_val > 0.5).astype(int), zero_division=0))
-        log.info(f"  Stage 1 — AUC={clf_auc:.4f}  F1={clf_f1:.4f}  iter={clf_model.best_iteration}")
+
+        # Threshold tuning via Youden's J (optimal for imbalanced classes)
+        if tune_threshold and y_val_clf.sum() > 0:
+            opt_threshold = _optimal_threshold_youden(y_val_clf, demand_probs_val)
+        else:
+            opt_threshold = float(demand_rate)   # fallback: use demand rate
+        opt_threshold = float(np.clip(opt_threshold, 0.01, 0.5))
+
+        clf_f1 = float(f1_score(y_val_clf, (demand_probs_val >= opt_threshold).astype(int), zero_division=0))
+        log.info(
+            f"  Stage 1 — AUC={clf_auc:.4f}  opt_thresh={opt_threshold:.4f}  "
+            f"F1@thresh={clf_f1:.4f}  iter={clf_model.best_iteration}"
+        )
 
         clf_path = MODELS_DIR / "lgbm_stage1_classifier.txt"
         clf_model.save_model(str(clf_path))
@@ -214,8 +233,10 @@ def run_two_stage_training() -> dict:
         reg_path = MODELS_DIR / "lgbm_stage2_regressor.txt"
         reg_model.save_model(str(reg_path))
 
-        # ── Combined forecast ─────────────────────────────────────────────────
-        final_preds = demand_probs_val * qty_preds_val
+        # ── Combined forecast (threshold-gated — Loop 4) ─────────────────────
+        # P × qty_pred when P >= opt_threshold, else 0
+        demand_mask = demand_probs_val >= opt_threshold
+        final_preds = np.where(demand_mask, qty_preds_val, 0.0).astype("float32")
 
         # ── Evaluation ───────────────────────────────────────────────────────
         metrics_all  = compute_all_metrics(y_val, final_preds)
@@ -242,7 +263,8 @@ def run_two_stage_training() -> dict:
             "val_demand_f1":   round(df1, 4),
             "val_pinball_50":  round(pl, 4),
             "clf_auc":         round(clf_auc, 4),
-            "clf_f1":          round(clf_f1, 4),
+            "clf_f1_at_thresh": round(clf_f1, 4),
+            "clf_opt_threshold": round(opt_threshold, 4),
             "clf_best_iter":   clf_model.best_iteration,
             "reg_best_iter":   reg_model.best_iteration,
         })
@@ -268,11 +290,12 @@ def run_two_stage_training() -> dict:
         "val_rows":        len(val),
         "train_demand_rate": round(demand_rate, 4),
         "stage1_classifier": {
-            "auc":       round(clf_auc, 4),
-            "f1":        round(clf_f1, 4),
-            "best_iter": clf_model.best_iteration,
-            "model_path": str(clf_path),
-            "top_features": dict(sorted(clf_imp.items(), key=lambda x: -x[1])[:10]),
+            "auc":           round(clf_auc, 4),
+            "f1_at_thresh":  round(clf_f1, 4),
+            "opt_threshold": round(opt_threshold, 4),
+            "best_iter":     clf_model.best_iteration,
+            "model_path":    str(clf_path),
+            "top_features":  dict(sorted(clf_imp.items(), key=lambda x: -x[1])[:10]),
         },
         "stage2_regressor": {
             "best_iter":    reg_model.best_iteration,

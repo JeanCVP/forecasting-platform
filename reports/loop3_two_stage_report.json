@@ -1,7 +1,7 @@
 {
   "pipeline": "loop3_two_stage",
-  "run_at": "2026-05-31T17:30:58.525609+00:00",
-  "mlflow_run_id": "63802aa7ebf24ce09f5a2ad5ef23d522",
+  "run_at": "2026-05-31T17:36:04.958438+00:00",
+  "mlflow_run_id": "ba718992cb8249c68e46d150d9a2e442",
   "category": "Sell-in",
   "train_end": 202452,
   "val_start": 202501,
@@ -30,7 +30,8 @@
   "train_demand_rate": 0.0548,
   "stage1_classifier": {
     "auc": 0.9593,
-    "f1": 0.0,
+    "f1_at_thresh": 0.857,
+    "opt_threshold": 0.2773,
     "best_iter": 5,
     "model_path": "data/models/lgbm_stage1_classifier.txt",
     "top_features": {
@@ -64,20 +65,20 @@
     }
   },
   "val_metrics": {
-    "smape": 193.8939,
-    "wape": 108.5078,
-    "active_wape": 97.0117,
-    "mase": 0.722,
-    "bias": -85.1985,
-    "slp": 0.9259,
-    "demand_f1": 0.1577,
-    "pinball_50": 5.3794,
-    "mae": 10.7589,
-    "rmse": 103.3253
+    "smape": 12.7144,
+    "wape": 94.7035,
+    "active_wape": 93.0283,
+    "mase": 0.6302,
+    "bias": -87.8891,
+    "slp": 0.9432,
+    "demand_f1": 0.857,
+    "pinball_50": 4.6951,
+    "mae": 9.3901,
+    "rmse": 102.3111
   },
   "vs_loop2_baseline": {
     "loop2_smape_seasonal_naive": 25.0294,
-    "loop3_smape_two_stage": 193.8939,
-    "improvement_smape_pct": -674.66
+    "loop3_smape_two_stage": 12.7144,
+    "improvement_smape_pct": 49.2
   }
 }
