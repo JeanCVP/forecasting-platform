@@ -1,17 +1,17 @@
 {
   "pipeline": "blended_forecast_loop8",
-  "run_at": "2026-05-31T18:09:46.855725+00:00",
-  "total_rows": 885677,
+  "run_at": "2026-05-31T19:40:30.925084+00:00",
+  "total_rows": 884052,
   "n_skus": 17001,
-  "n_weeks": 71,
-  "week_range": "202534\u2013202652",
+  "n_weeks": 52,
+  "week_range": "202534\u2013202633",
   "source_breakdown": {
-    "seasonal_naive": 883987,
+    "seasonal_naive": 882362,
     "loop7_recursive": 1690
   },
-  "total_q50": 2879350.0,
-  "total_q90": 4581753.0,
-  "avg_weekly_q50": 40554.0,
-  "avg_weekly_q90": 64532.0,
+  "total_q50": 3782848.0,
+  "total_q90": 6027350.0,
+  "avg_weekly_q50": 72747.0,
+  "avg_weekly_q90": 115911.0,
   "output_path": "data/forecasts/loop8_blended_forecasts.parquet"
 }
