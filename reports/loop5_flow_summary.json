@@ -1,0 +1,296 @@
+{
+  "status": "success",
+  "total_runtime_s": 56.5,
+  "run_at": "2026-05-31T17:41:56.182523+00:00",
+  "optuna": {
+    "best_active_wape": 65.8938,
+    "best_params": {
+      "log_target": true,
+      "objective": "huber",
+      "num_leaves": 154,
+      "learning_rate": 0.14839058155279436,
+      "min_child_samples": 19,
+      "feature_fraction": 0.5014767193713563,
+      "bagging_fraction": 0.7352211639093376,
+      "huber_alpha": 0.9823086684729874
+    },
+    "n_trials": 30,
+    "n_features": 21,
+    "feature_cols": [
+      "lag_1",
+      "lag_4",
+      "lag_52",
+      "rolling_mean_4",
+      "rolling_mean_12",
+      "rolling_std_12",
+      "weeks_since_last_sale",
+      "intermittent_flag",
+      "week_sin",
+      "week_cos",
+      "inventory_days_of_supply",
+      "lag_nonzero_1",
+      "lag_nonzero_4",
+      "lag_nonzero_52",
+      "demand_rate_12",
+      "zscore_vs_channel",
+      "log_lag_1",
+      "log_lag_4",
+      "log_rolling_mean_12",
+      "cv_12",
+      "channel_nonzero_avg"
+    ],
+    "all_trials": [
+      {
+        "number": 13,
+        "value": 65.8938,
+        "params": {
+          "log_target": true,
+          "objective": "huber",
+          "num_leaves": 154,
+          "learning_rate": 0.14839058155279436,
+          "min_child_samples": 19,
+          "feature_fraction": 0.5014767193713563,
+          "bagging_fraction": 0.7352211639093376,
+          "huber_alpha": 0.9823086684729874
+        }
+      },
+      {
+        "number": 24,
+        "value": 76.6877,
+        "params": {
+          "log_target": true,
+          "objective": "huber",
+          "num_leaves": 198,
+          "learning_rate": 0.04564711221678563,
+          "min_child_samples": 23,
+          "feature_fraction": 0.5539011442373915,
+          "bagging_fraction": 0.9093463595930693,
+          "huber_alpha": 0.8631118062094655
+        }
+      },
+      {
+        "number": 25,
+        "value": 76.7226,
+        "params": {
+          "log_target": true,
+          "objective": "huber",
+          "num_leaves": 190,
+          "learning_rate": 0.046079835704051136,
+          "min_child_samples": 24,
+          "feature_fraction": 0.50609163255132,
+          "bagging_fraction": 0.6736252473300719,
+          "huber_alpha": 0.859400397277787
+        }
+      },
+      {
+        "number": 14,
+        "value": 76.8691,
+        "params": {
+          "log_target": true,
+          "objective": "huber",
+          "num_leaves": 138,
+          "learning_rate": 0.14957483387683138,
+          "min_child_samples": 19,
+          "feature_fraction": 0.6068188427844587,
+          "bagging_fraction": 0.7381910174674693,
+          "huber_alpha": 0.9140485192166075
+        }
+      },
+      {
+        "number": 18,
+        "value": 76.8743,
+        "params": {
+          "log_target": true,
+          "objective": "huber",
+          "num_leaves": 146,
+          "learning_rate": 0.0673922602327645,
+          "min_child_samples": 13,
+          "feature_fraction": 0.5643520723623325,
+          "bagging_fraction": 0.8875706072470324,
+          "huber_alpha": 0.933088979231744
+        }
+      },
+      {
+        "number": 21,
+        "value": 76.9784,
+        "params": {
+          "log_target": true,
+          "objective": "huber",
+          "num_leaves": 148,
+          "learning_rate": 0.05455590260937454,
+          "min_child_samples": 14,
+          "feature_fraction": 0.5558213229161927,
+          "bagging_fraction": 0.9164954887482741,
+          "huber_alpha": 0.7043561513714492
+        }
+      },
+      {
+        "number": 16,
+        "value": 77.9554,
+        "params": {
+          "log_target": true,
+          "objective": "huber",
+          "num_leaves": 130,
+          "learning_rate": 0.06467048294240398,
+          "min_child_samples": 25,
+          "feature_fraction": 0.5978778384237653,
+          "bagging_fraction": 0.7776644402997737,
+          "huber_alpha": 0.9102581477024317
+        }
+      },
+      {
+        "number": 17,
+        "value": 77.9733,
+        "params": {
+          "log_target": true,
+          "objective": "huber",
+          "num_leaves": 183,
+          "learning_rate": 0.06294178260072511,
+          "min_child_samples": 35,
+          "feature_fraction": 0.6635399233467898,
+          "bagging_fraction": 0.7170962024550142,
+          "huber_alpha": 0.9252490610594144
+        }
+      },
+      {
+        "number": 26,
+        "value": 78.3733,
+        "params": {
+          "log_target": true,
+          "objective": "huber",
+          "num_leaves": 198,
+          "learning_rate": 0.04632153568254831,
+          "min_child_samples": 25,
+          "feature_fraction": 0.5051839797258569,
+          "bagging_fraction": 0.6751536030947249,
+          "huber_alpha": 0.8528444119946303
+        }
+      },
+      {
+        "number": 23,
+        "value": 80.6521,
+        "params": {
+          "log_target": true,
+          "objective": "huber",
+          "num_leaves": 166,
+          "learning_rate": 0.08030185911380099,
+          "min_child_samples": 16,
+          "feature_fraction": 0.624940739612734,
+          "bagging_fraction": 0.7502057098614834,
+          "huber_alpha": 0.9432427562120052
+        }
+      }
+    ]
+  },
+  "enhanced": {
+    "pipeline": "loop5_enhanced_two_stage",
+    "run_at": "2026-05-31T17:41:56.144532+00:00",
+    "mlflow_run_id": "d08c3e45977b4fa0a19a2f07589ff867",
+    "n_features": 21,
+    "feature_cols": [
+      "lag_1",
+      "lag_4",
+      "lag_52",
+      "rolling_mean_4",
+      "rolling_mean_12",
+      "rolling_std_12",
+      "weeks_since_last_sale",
+      "intermittent_flag",
+      "week_sin",
+      "week_cos",
+      "inventory_days_of_supply",
+      "lag_nonzero_1",
+      "lag_nonzero_4",
+      "lag_nonzero_52",
+      "demand_rate_12",
+      "zscore_vs_channel",
+      "log_lag_1",
+      "log_lag_4",
+      "log_rolling_mean_12",
+      "cv_12",
+      "channel_nonzero_avg"
+    ],
+    "use_log_target": true,
+    "optuna_params": {
+      "log_target": true,
+      "objective": "huber",
+      "num_leaves": 154,
+      "learning_rate": 0.14839058155279436,
+      "min_child_samples": 19,
+      "feature_fraction": 0.5014767193713563,
+      "bagging_fraction": 0.7352211639093376,
+      "huber_alpha": 0.9823086684729874
+    },
+    "stage1_classifier": {
+      "auc": 0.9631,
+      "f1_at_thresh": 0.8026,
+      "opt_threshold": 0.0506,
+      "best_iter": 4,
+      "calibrated": true,
+      "top_features": {
+        "rolling_mean_12": 4361663.931762695,
+        "inventory_days_of_supply": 3762010.390625,
+        "channel_nonzero_avg": 2553414.196411133,
+        "weeks_since_last_sale": 770716.8403320312,
+        "zscore_vs_channel": 370134.07287597656,
+        "week_sin": 160207.59985351562,
+        "week_cos": 46487.76989746094,
+        "rolling_std_12": 42347.610595703125,
+        "cv_12": 33698.419677734375,
+        "rolling_mean_4": 27067.968994140625
+      }
+    },
+    "stage2_regressor": {
+      "best_iter": 22,
+      "log_target": true,
+      "nz_train_rows": 63091,
+      "params": {
+        "objective": "huber",
+        "metric": "mae",
+        "num_leaves": 154,
+        "learning_rate": 0.14839058155279436,
+        "min_child_samples": 19,
+        "feature_fraction": 0.5014767193713563,
+        "bagging_fraction": 0.7352211639093376,
+        "bagging_freq": 5,
+        "n_jobs": -1,
+        "alpha": 0.9823086684729874
+      },
+      "top_features": {
+        "rolling_std_12": 68265.10005557537,
+        "channel_nonzero_avg": 50124.91017436981,
+        "inventory_days_of_supply": 36623.56513428688,
+        "log_rolling_mean_12": 15521.101967334747,
+        "rolling_mean_12": 9587.3995449543,
+        "rolling_mean_4": 8885.44476556778,
+        "lag_1": 4420.677640199661,
+        "zscore_vs_channel": 3493.896893978119,
+        "cv_12": 3440.4760949611664,
+        "log_lag_1": 3349.6039757728577
+      }
+    },
+    "val_metrics": {
+      "smape": 12.2179,
+      "wape": 68.9058,
+      "active_wape": 67.3403,
+      "mase": 0.4585,
+      "bias": -57.1073,
+      "slp": 0.9514,
+      "demand_f1": 0.8026,
+      "pinball_50": 3.4161,
+      "mae": 6.8322,
+      "rmse": 88.7354,
+      "pinball_10": 1.0099,
+      "pinball_90": 2.5133
+    },
+    "vs_loop4": {
+      "loop4_active_wape": 93.7601,
+      "loop5_active_wape": 67.3403,
+      "loop4_mase": 0.6169,
+      "loop5_mase": 0.4585,
+      "loop4_bias": -87.5074,
+      "loop5_bias": -57.1073,
+      "active_wape_improvement_pct": 28.18
+    }
+  }
+}
