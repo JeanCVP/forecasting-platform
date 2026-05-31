@@ -26,10 +26,11 @@ import pandas as pd
 
 log = logging.getLogger(__name__)
 
-SILVER_PATH    = Path("data/silver/silver_dataset.parquet")
-FORECASTS_PATH = Path("data/forecasts/forecasts.parquet")
-FORECASTS_DIR  = Path("data/forecasts")
-REPORTS_DIR    = Path("reports")
+SILVER_PATH       = Path("data/silver/silver_dataset.parquet")
+FORECASTS_PATH    = Path("data/forecasts/forecasts.parquet")
+LOOP7_FC_PATH     = Path("data/forecasts/loop7_recursive_forecasts.parquet")
+FORECASTS_DIR     = Path("data/forecasts")
+REPORTS_DIR       = Path("reports")
 
 # Umbrales de riesgo (semanas de cobertura)
 THRESHOLDS = {
@@ -77,7 +78,17 @@ def run_inventory_risk_scoring() -> dict:
         .astype(int)
     )
 
-    log.info("Cargando forecasts...")
+    # Prefer Loop 7 recursive forecasts (Q50 point, Q90 conservative); fallback to Seasonal Naïve
+    if LOOP7_FC_PATH.exists():
+        log.info("Cargando Loop 7 recursive forecasts (Q10/Q50/Q90)...")
+        loop7_fc = pd.read_parquet(LOOP7_FC_PATH)
+        loop7_fc["year_week"] = loop7_fc["year_week"].astype(str).str.replace(r"\.0$", "", regex=True).astype(int)
+        use_loop7 = True
+    else:
+        loop7_fc = None
+        use_loop7 = False
+
+    log.info("Cargando forecasts Seasonal Naïve (referencia)...")
     forecasts = pd.read_parquet(FORECASTS_PATH)
 
     # ── Inventario actual: última lectura no-cero por SKU ─────────────────────
@@ -97,19 +108,37 @@ def run_inventory_risk_scoring() -> dict:
     )
     log.info(f"  SKUs con inventario activo: {len(last_inv):,}")
 
-    # ── Forecast total 13 semanas por SKU ─────────────────────────────────────
+    # ── Forecast total por SKU ────────────────────────────────────────────────
     log.info("Agregando forecasts por SKU...")
-    fc_agg = (
-        forecasts.groupby(["Channel", "Material Description"])
-        .agg(
-            forecast_total=("forecast_naive", "sum"),
-            avg_weekly_demand=("forecast_naive", "mean"),
-            forecast_start=("year_week", "min"),
-            forecast_end=("year_week", "max"),
-            n_weeks=("horizon_step", "count"),
+    if use_loop7 and loop7_fc is not None:
+        fc_agg = (
+            loop7_fc.groupby(["Channel", "Material Description"])
+            .agg(
+                forecast_total=("forecast_q50", "sum"),
+                forecast_q90_total=("forecast_q90", "sum"),
+                avg_weekly_demand=("forecast_q50", "mean"),
+                avg_weekly_demand_q90=("forecast_q90", "mean"),
+                forecast_start=("year_week", "min"),
+                forecast_end=("year_week", "max"),
+                n_weeks=("year_week", "count"),
+            )
+            .reset_index()
         )
-        .reset_index()
-    )
+        log.info(f"  Usando Loop 7 Q50/Q90 ({len(fc_agg):,} SKUs)")
+    else:
+        fc_agg = (
+            forecasts.groupby(["Channel", "Material Description"])
+            .agg(
+                forecast_total=("forecast_naive", "sum"),
+                avg_weekly_demand=("forecast_naive", "mean"),
+                forecast_start=("year_week", "min"),
+                forecast_end=("year_week", "max"),
+                n_weeks=("horizon_step", "count"),
+            )
+            .reset_index()
+        )
+        fc_agg["forecast_q90_total"]   = fc_agg["forecast_total"]
+        fc_agg["avg_weekly_demand_q90"] = fc_agg["avg_weekly_demand"]
 
     # ── Join inventario × forecast ────────────────────────────────────────────
     log.info("Cruzando inventario con forecast...")
@@ -125,7 +154,16 @@ def run_inventory_risk_scoring() -> dict:
         risk["current_inventory"] / (risk["avg_weekly_demand"] + eps)
     ).round(2)
 
-    risk["risk_level"] = risk["weeks_of_supply"].apply(_risk_level)
+    # Conservative weeks_of_supply using Q90 demand (pessimistic scenario)
+    if "avg_weekly_demand_q90" in risk.columns:
+        risk["weeks_of_supply_conservative"] = (
+            risk["current_inventory"] / (risk["avg_weekly_demand_q90"] + eps)
+        ).round(2)
+    else:
+        risk["weeks_of_supply_conservative"] = risk["weeks_of_supply"]
+
+    # Risk level based on conservative (Q90) estimate for safety
+    risk["risk_level"] = risk["weeks_of_supply_conservative"].apply(_risk_level)
 
     # ── Semana de quiebre (stockout simulation) ───────────────────────────────
     log.info("Calculando semana de quiebre por SKU...")
@@ -174,7 +212,10 @@ def run_inventory_risk_scoring() -> dict:
     report = {
         "pipeline":        "inventory_risk_scoring",
         "run_at":          datetime.now(timezone.utc).isoformat(),
-        "forecast_window": f"{risk['forecast_start'].iloc[0]}–{risk['forecast_end'].iloc[0]}",
+        "forecast_window": (
+            f"{risk['forecast_start'].iloc[0]}–{risk['forecast_end'].iloc[0]}"
+            if len(risk) > 0 else "n/a"
+        ),
         "n_skus_scored":   len(risk),
         "risk_distribution": {
             "CRITICAL": counts.get("CRITICAL", 0),

@@ -1,0 +1,203 @@
+{
+  "status": "success",
+  "total_runtime_s": 6.4,
+  "run_at": "2026-05-31T17:58:13.544345+00:00",
+  "bias_factors": {
+    "global": 2.0961,
+    "regular": 1.8805,
+    "sparse": 5.0
+  },
+  "recursive_forecast": {
+    "pipeline": "recursive_forecast_loop7",
+    "last_actual_week": 202533,
+    "forecast_start": 202534,
+    "forecast_end": 202652,
+    "horizon_weeks": 71,
+    "n_skus_active": 286,
+    "total_q50": 45938.0,
+    "avg_weekly_q50": 1276.0,
+    "bias_factors": {
+      "global": 2.0961,
+      "regular": 1.8805,
+      "sparse": 5.0
+    },
+    "elapsed_s": 1.2,
+    "output_path": "data/forecasts/loop7_recursive_forecasts.parquet",
+    "output_rows": 1690
+  },
+  "inventory_risk": {
+    "pipeline": "inventory_risk_scoring",
+    "run_at": "2026-05-31T17:58:13.486427+00:00",
+    "forecast_window": "202534\u2013202537",
+    "n_skus_scored": 217,
+    "risk_distribution": {
+      "CRITICAL": 171,
+      "HIGH": 33,
+      "MEDIUM": 12,
+      "LOW": 1
+    },
+    "pct_at_risk": 94.0,
+    "top_critical_skus": [
+      {
+        "Channel": "CUSTOMER35",
+        "Material Description": "QLED TV,QN50QEF1AK,50,COLOMBIA,QWD51/Q50",
+        "current_inventory": 1.0,
+        "forecast_total": 203.81272888183594,
+        "weeks_of_supply": 0.02,
+        "stockout_week": 202620.0
+      },
+      {
+        "Channel": "CUSTOMER35",
+        "Material Description": "LED TV(H),HG55BU800NF,55,UNITED STATES,H",
+        "current_inventory": 1.0,
+        "forecast_total": 113.88365173339844,
+        "weeks_of_supply": 0.03,
+        "stockout_week": 202613.0
+      },
+      {
+        "Channel": "CUSTOMER35",
+        "Material Description": "LED TV,UN75DU8000K,75,COLOMBIA,UWK40/U75",
+        "current_inventory": 1.0,
+        "forecast_total": 113.88365173339844,
+        "weeks_of_supply": 0.03,
+        "stockout_week": 202601.0
+      },
+      {
+        "Channel": "CUSTOMER35",
+        "Material Description": "MON,S32DM801UN,32,UNITED STATES,LP20/S32",
+        "current_inventory": 1.0,
+        "forecast_total": 64.8123779296875,
+        "weeks_of_supply": 0.03,
+        "stockout_week": 202607.0
+      },
+      {
+        "Channel": "CUSTOMER35",
+        "Material Description": "QLED TV,QN50Q60DAK,50,COLOMBIA,QWK30/Q50",
+        "current_inventory": 1.0,
+        "forecast_total": 66.4128646850586,
+        "weeks_of_supply": 0.03,
+        "stockout_week": 202601.0
+      },
+      {
+        "Channel": "CUSTOMER35",
+        "Material Description": "QLED TV,QN65Q70DAK,65,COLOMBIA,QWR40/Q65",
+        "current_inventory": 1.0,
+        "forecast_total": 62.77858352661133,
+        "weeks_of_supply": 0.03,
+        "stockout_week": 202601.0
+      },
+      {
+        "Channel": "CUSTOMER35",
+        "Material Description": "QLED TV,QN75QEF1AK,75,COLOMBIA,QWD51/Q75",
+        "current_inventory": 1.0,
+        "forecast_total": 295.19671630859375,
+        "weeks_of_supply": 0.03,
+        "stockout_week": 202621.0
+      },
+      {
+        "Channel": "CUSTOMER35",
+        "Material Description": "BUSINESS TV,BE55D-H,55,COLOMBIA,FY41/H55",
+        "current_inventory": 1.0,
+        "forecast_total": 107.79205322265625,
+        "weeks_of_supply": 0.04,
+        "stockout_week": 202604.0
+      },
+      {
+        "Channel": "CUSTOMER35",
+        "Material Description": "BUSINESS TV,BE65D-H,65,COLOMBIA,FY41/H65",
+        "current_inventory": 1.0,
+        "forecast_total": 310.4095153808594,
+        "weeks_of_supply": 0.04,
+        "stockout_week": 202627.0
+      },
+      {
+        "Channel": "CUSTOMER35",
+        "Material Description": "LED TV,UN50DU7000K,50,COLOMBIA,UWS41/U50",
+        "current_inventory": 1.0,
+        "forecast_total": 26.571250915527344,
+        "weeks_of_supply": 0.04,
+        "stockout_week": 202601.0
+      },
+      {
+        "Channel": "CUSTOMER35",
+        "Material Description": "LED TV,UN50DU8200K,50,COLOMBIA,UWK40/U50",
+        "current_inventory": 1.0,
+        "forecast_total": 47.02189636230469,
+        "weeks_of_supply": 0.04,
+        "stockout_week": 202601.0
+      },
+      {
+        "Channel": "CUSTOMER35",
+        "Material Description": "LED TV,UN55DU8000K,55,COLOMBIA,UWK40/U55",
+        "current_inventory": 1.0,
+        "forecast_total": 51.50907897949219,
+        "weeks_of_supply": 0.04,
+        "stockout_week": 202601.0
+      },
+      {
+        "Channel": "CUSTOMER35",
+        "Material Description": "LED TV,UN75DU7000K,75,COLOMBIA,UWS41/U75",
+        "current_inventory": 1.0,
+        "forecast_total": 53.64598083496094,
+        "weeks_of_supply": 0.04,
+        "stockout_week": 202601.0
+      },
+      {
+        "Channel": "CUSTOMER35",
+        "Material Description": "LED TV,UN75U8200FK,75,COLOMBIA,UWS51/U75",
+        "current_inventory": 2.0,
+        "forecast_total": 51.41866683959961,
+        "weeks_of_supply": 0.04,
+        "stockout_week": 202617.0
+      },
+      {
+        "Channel": "CUSTOMER35",
+        "Material Description": "QLED TV,QN55QNX1DAK,55,COLOMBIA,QWW40/Q5",
+        "current_inventory": 1.0,
+        "forecast_total": 54.161190032958984,
+        "weeks_of_supply": 0.04,
+        "stockout_week": 202601.0
+      },
+      {
+        "Channel": "CUSTOMER35",
+        "Material Description": "QLED TV,QN75Q60DAK,75,COLOMBIA,QWK30/Q75",
+        "current_inventory": 1.0,
+        "forecast_total": 54.14783477783203,
+        "weeks_of_supply": 0.04,
+        "stockout_week": 202601.0
+      },
+      {
+        "Channel": "CUSTOMER35",
+        "Material Description": "BUSINESS TV,BE50D-H,50,COLOMBIA,FY41/H50",
+        "current_inventory": 1.0,
+        "forecast_total": 42.268959045410156,
+        "weeks_of_supply": 0.05,
+        "stockout_week": 202608.0
+      },
+      {
+        "Channel": "CUSTOMER35",
+        "Material Description": "GCT,120V 60HZ,REAL STAINLESS",
+        "current_inventory": 1.0,
+        "forecast_total": 77.80168914794922,
+        "weeks_of_supply": 0.05,
+        "stockout_week": 202610.0
+      },
+      {
+        "Channel": "CUSTOMER35",
+        "Material Description": "LED TV,UN43DU7000K,43,COLOMBIA,UWS41/U43",
+        "current_inventory": 1.0,
+        "forecast_total": 18.672704696655273,
+        "weeks_of_supply": 0.05,
+        "stockout_week": 202601.0
+      },
+      {
+        "Channel": "CUSTOMER35",
+        "Material Description": "MON,S27BG402EN,27,UNITED STATES,LA20/S27",
+        "current_inventory": 1.0,
+        "forecast_total": 43.4315299987793,
+        "weeks_of_supply": 0.05,
+        "stockout_week": 202602.0
+      }
+    ]
+  }
+}
