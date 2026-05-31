@@ -2,8 +2,9 @@
   "pipeline": "forecast_generation",
   "last_data_week": 202533,
   "forecast_start": 202534,
-  "forecast_end": 202652,
-  "horizon_weeks": 71,
+  "forecast_end": 202633,
+  "horizon_weeks": 52,
+  "note": "52 semanas \u2014 lag-52 apunta solo a datos reales (\u2264 W33\u00b72025)",
   "n_skus": 17001,
   "total_forecast_units": 3738548.0
 }
