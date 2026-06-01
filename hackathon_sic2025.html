@@ -7806,29 +7806,40 @@ a.anchor-link {
 <strong>Fecha:</strong> Mayo 2026<br/>
 <strong>Datos:</strong> Ventas e inventarios Samsung Colombia · 2023–2025 (98 clientes, 2,093 productos, frecuencia semanal)</p>
 <hr/>
-<h2 id="Estructura-del-an%C3%A1lisis">Estructura del análisis<a class="anchor-link" href="#Estructura-del-an%C3%A1lisis">¶</a></h2><table>
+<h2 id="Estructura-del-an%C3%A1lisis">Estructura del análisis<a class="anchor-link" href="#Estructura-del-an%C3%A1lisis">¶</a></h2><p>El notebook sigue las fases del reto (secciones 5.1 a 5.5):</p>
+<table>
 <thead>
 <tr>
-<th>Fase</th>
+<th>Parte</th>
 <th>Contenido</th>
+<th>Sección del reto</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>A · Procesamiento</strong></td>
-<td>Carga de datos, transformación wide→long, parsing de descripciones</td>
+<td><strong>Parte 1 · Exploración y Preparación</strong></td>
+<td>Carga, transformación wide→long, parsing de descripciones</td>
+<td>5.1 · 5.2</td>
 </tr>
 <tr>
-<td><strong>B · Estadístico</strong></td>
-<td>Promedios, estacionalidad, rotación de inventario, patrones clave</td>
+<td><strong>Parte 2 · Análisis Estadístico</strong></td>
+<td>Promedios, estacionalidad, rotación de inventario, intermitencia</td>
+<td>5.4</td>
 </tr>
 <tr>
-<td><strong>C · Modelo ML</strong></td>
-<td>LightGBM two-stage, validación cruzada, predicciones 2026</td>
+<td><strong>Parte 3 · Estructuración y Álgebra Lineal</strong></td>
+<td>Matriz de datos, correlación, dispersión entre variables</td>
+<td>5.3</td>
 </tr>
 <tr>
-<td><strong>Preguntas estratégicas</strong></td>
-<td>4 respuestas cuantitativas para la dirección comercial</td>
+<td><strong>Parte 4 · Modelo Predictivo</strong></td>
+<td>LightGBM two-stage, validación cruzada, pronóstico 2026</td>
+<td>5.5</td>
+</tr>
+<tr>
+<td><strong>Parte 5 · Preguntas Estratégicas</strong></td>
+<td>5 respuestas cuantitativas para la dirección comercial</td>
+<td>5.5</td>
 </tr>
 </tbody>
 </table>
@@ -7882,7 +7893,7 @@ a.anchor-link {
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
-<h1 id="FASE-A-%C2%B7-Procesamiento-e-Ingenier%C3%ADa-de-Datos">FASE A · Procesamiento e Ingeniería de Datos<a class="anchor-link" href="#FASE-A-%C2%B7-Procesamiento-e-Ingenier%C3%ADa-de-Datos">¶</a></h1>
+<h1 id="PARTE-1-%C2%B7-Exploraci%C3%B3n-y-Preparaci%C3%B3n-de-Datos">PARTE 1 · Exploración y Preparación de Datos<a class="anchor-link" href="#PARTE-1-%C2%B7-Exploraci%C3%B3n-y-Preparaci%C3%B3n-de-Datos">¶</a></h1><p><em>Cubre las secciones 5.1 (exploración inicial) y 5.2 (limpieza y preparación) del reto.</em></p>
 </div>
 </div>
 </div>
@@ -7893,7 +7904,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="A.1-Carga-de-datos-brutos">A.1 Carga de datos brutos<a class="anchor-link" href="#A.1-Carga-de-datos-brutos">¶</a></h2><p>Los datos originales están en <strong>formato ancho</strong>: una fila por combinación (Canal, Producto, Categoría) y una columna por semana (formato <code>YYYYWW</code>). Hay tres archivos anuales.</p>
+<h2 id="1.1-Carga-de-datos-brutos">1.1 Carga de datos brutos<a class="anchor-link" href="#1.1-Carga-de-datos-brutos">¶</a></h2><p>Los datos originales están en <strong>formato ancho</strong>: una fila por combinación (Canal, Producto, Categoría) y una columna por semana (formato <code>YYYYWW</code>). Hay tres archivos anuales.</p>
 </div>
 </div>
 </div>
@@ -8085,7 +8096,7 @@ Primeras semanas: ['202301', '202302', '202303', '202304', '202305']
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="A.2-Transformaci%C3%B3n-Wide-%E2%86%92-Long">A.2 Transformación Wide → Long<a class="anchor-link" href="#A.2-Transformaci%C3%B3n-Wide-%E2%86%92-Long">¶</a></h2><p>Para el modelado de series temporales necesitamos formato largo: una fila por (Canal, Producto, Categoría, Semana).</p>
+<h2 id="1.2-Transformaci%C3%B3n-Wide-%E2%86%92-Long">1.2 Transformación Wide → Long<a class="anchor-link" href="#1.2-Transformaci%C3%B3n-Wide-%E2%86%92-Long">¶</a></h2><p>Para el modelado de series temporales necesitamos formato largo: una fila por (Canal, Producto, Categoría, Semana).</p>
 </div>
 </div>
 </div>
@@ -8208,7 +8219,7 @@ Primeras semanas: ['202301', '202302', '202303', '202304', '202305']
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="A.3-Extracci%C3%B3n-de-atributos-de-Material-Description">A.3 Extracción de atributos de Material Description<a class="anchor-link" href="#A.3-Extracci%C3%B3n-de-atributos-de-Material-Description">¶</a></h2><p>La columna <code>Material Description</code> contiene atributos concatenados (categoría, modelo, color, país).</p>
+<h2 id="1.3-Extracci%C3%B3n-de-atributos-de-Material-Description">1.3 Extracción de atributos de Material Description<a class="anchor-link" href="#1.3-Extracci%C3%B3n-de-atributos-de-Material-Description">¶</a></h2><p>La columna <code>Material Description</code> contiene atributos concatenados (categoría, modelo, color, país).</p>
 </div>
 </div>
 </div>
@@ -8308,7 +8319,7 @@ Primeras semanas: ['202301', '202302', '202303', '202304', '202305']
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
-<h1 id="FASE-B-%C2%B7-An%C3%A1lisis-Estad%C3%ADstico-y-Probabil%C3%ADstico">FASE B · Análisis Estadístico y Probabilístico<a class="anchor-link" href="#FASE-B-%C2%B7-An%C3%A1lisis-Estad%C3%ADstico-y-Probabil%C3%ADstico">¶</a></h1>
+<h1 id="PARTE-2-%C2%B7-An%C3%A1lisis-Estad%C3%ADstico-y-de-Probabilidad">PARTE 2 · Análisis Estadístico y de Probabilidad<a class="anchor-link" href="#PARTE-2-%C2%B7-An%C3%A1lisis-Estad%C3%ADstico-y-de-Probabilidad">¶</a></h1><p><em>Cubre la sección 5.4 del reto: promedios, mejores periodos de venta y rotación de inventario.</em></p>
 </div>
 </div>
 </div>
@@ -8319,7 +8330,7 @@ Primeras semanas: ['202301', '202302', '202303', '202304', '202305']
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="B.1-Resumen-global-del-negocio">B.1 Resumen global del negocio<a class="anchor-link" href="#B.1-Resumen-global-del-negocio">¶</a></h2>
+<h2 id="2.1-Resumen-global-del-negocio">2.1 Resumen global del negocio<a class="anchor-link" href="#2.1-Resumen-global-del-negocio">¶</a></h2>
 </div>
 </div>
 </div>
@@ -8377,7 +8388,7 @@ Primeras semanas: ['202301', '202302', '202303', '202304', '202305']
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="B.2-Tendencia-anual-de-ventas-(Sell-in)">B.2 Tendencia anual de ventas (Sell-in)<a class="anchor-link" href="#B.2-Tendencia-anual-de-ventas-(Sell-in)">¶</a></h2>
+<h2 id="2.2-Tendencia-anual-de-ventas-(Sell-in)">2.2 Tendencia anual de ventas (Sell-in)<a class="anchor-link" href="#2.2-Tendencia-anual-de-ventas-(Sell-in)">¶</a></h2>
 </div>
 </div>
 </div>
@@ -8450,7 +8461,7 @@ Primeras semanas: ['202301', '202302', '202303', '202304', '202305']
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="B.3-Estacionalidad-semanal-%E2%80%94-mejores-semanas-del-a%C3%B1o">B.3 Estacionalidad semanal — mejores semanas del año<a class="anchor-link" href="#B.3-Estacionalidad-semanal-%E2%80%94-mejores-semanas-del-a%C3%B1o">¶</a></h2>
+<h2 id="2.3-Estacionalidad-semanal-%E2%80%94-mejores-semanas-del-a%C3%B1o">2.3 Estacionalidad semanal — mejores semanas del año<a class="anchor-link" href="#2.3-Estacionalidad-semanal-%E2%80%94-mejores-semanas-del-a%C3%B1o">¶</a></h2>
 </div>
 </div>
 </div>
@@ -8513,7 +8524,7 @@ Primeras semanas: ['202301', '202302', '202303', '202304', '202305']
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="B.4-Top-productos-y-canales-por-volumen">B.4 Top productos y canales por volumen<a class="anchor-link" href="#B.4-Top-productos-y-canales-por-volumen">¶</a></h2>
+<h2 id="2.4-Top-productos-y-canales-por-volumen">2.4 Top productos y canales por volumen<a class="anchor-link" href="#2.4-Top-productos-y-canales-por-volumen">¶</a></h2>
 </div>
 </div>
 </div>
@@ -8565,7 +8576,7 @@ Primeras semanas: ['202301', '202302', '202303', '202304', '202305']
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="B.5-An%C3%A1lisis-de-inventario-%E2%80%94-rotaci%C3%B3n-y-cobertura">B.5 Análisis de inventario — rotación y cobertura<a class="anchor-link" href="#B.5-An%C3%A1lisis-de-inventario-%E2%80%94-rotaci%C3%B3n-y-cobertura">¶</a></h2>
+<h2 id="2.5-An%C3%A1lisis-de-inventario-%E2%80%94-rotaci%C3%B3n-y-cobertura">2.5 Análisis de inventario — rotación y cobertura<a class="anchor-link" href="#2.5-An%C3%A1lisis-de-inventario-%E2%80%94-rotaci%C3%B3n-y-cobertura">¶</a></h2>
 </div>
 </div>
 </div>
@@ -8654,7 +8665,7 @@ LOW           1
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="B.6-Naturaleza-de-la-demanda-%E2%80%94-Alta-intermitencia">B.6 Naturaleza de la demanda — Alta intermitencia<a class="anchor-link" href="#B.6-Naturaleza-de-la-demanda-%E2%80%94-Alta-intermitencia">¶</a></h2><blockquote>
+<h2 id="2.6-Naturaleza-de-la-demanda-%E2%80%94-Alta-intermitencia">2.6 Naturaleza de la demanda — Alta intermitencia<a class="anchor-link" href="#2.6-Naturaleza-de-la-demanda-%E2%80%94-Alta-intermitencia">¶</a></h2><blockquote>
 <p><strong>Hallazgo crítico:</strong> La demanda es extremadamente intermitente (~99% de las semanas son cero para la mayoría de SKUs). Esto impacta directamente en la elección del modelo predictivo.</p>
 </blockquote>
 </div>
@@ -8727,7 +8738,7 @@ Cuando hay venta (cantidad &gt; 0):
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
-<h1 id="SECCI%C3%93N-5.3-%C2%B7-%C3%81lgebra-Lineal,-Correlaciones-y-Relaciones-entre-Variables">SECCIÓN 5.3 · Álgebra Lineal, Correlaciones y Relaciones entre Variables<a class="anchor-link" href="#SECCI%C3%93N-5.3-%C2%B7-%C3%81lgebra-Lineal,-Correlaciones-y-Relaciones-entre-Variables">¶</a></h1>
+<h1 id="PARTE-3-%C2%B7-Estructuraci%C3%B3n-y-%C3%81lgebra-Lineal">PARTE 3 · Estructuración y Álgebra Lineal<a class="anchor-link" href="#PARTE-3-%C2%B7-Estructuraci%C3%B3n-y-%C3%81lgebra-Lineal">¶</a></h1><p><em>Cubre la sección 5.3 del reto: estructuras matriciales, correlaciones y relaciones entre variables.</em></p>
 </div>
 </div>
 </div>
@@ -8738,7 +8749,7 @@ Cuando hay venta (cantidad &gt; 0):
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="5.3.1-Representaci%C3%B3n-matricial-de-los-datos">5.3.1 Representación matricial de los datos<a class="anchor-link" href="#5.3.1-Representaci%C3%B3n-matricial-de-los-datos">¶</a></h2><p>En aprendizaje automático, los datos se representan como una <strong>matriz de características</strong> <code>X</code> donde:</p>
+<h2 id="3.1-Representaci%C3%B3n-matricial-de-los-datos">3.1 Representación matricial de los datos<a class="anchor-link" href="#3.1-Representaci%C3%B3n-matricial-de-los-datos">¶</a></h2><p>En aprendizaje automático, los datos se representan como una <strong>matriz de características</strong> <code>X</code> donde:</p>
 <ul>
 <li>Cada <strong>fila</strong> es una observación (un SKU en una semana) → <strong>vector de features</strong></li>
 <li>Cada <strong>columna</strong> es una variable (lag_1, rolling_mean, etc.) → <strong>dimensión del espacio</strong></li>
@@ -8903,7 +8914,7 @@ Representación matemática:
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="5.3.2-Matriz-de-Correlaci%C3%B3n-%E2%80%94-%C2%BFQu%C3%A9-variables-se-relacionan-entre-s%C3%AD?">5.3.2 Matriz de Correlación — ¿Qué variables se relacionan entre sí?<a class="anchor-link" href="#5.3.2-Matriz-de-Correlaci%C3%B3n-%E2%80%94-%C2%BFQu%C3%A9-variables-se-relacionan-entre-s%C3%AD?">¶</a></h2><p>La <strong>matriz de correlación</strong> <code>C = (1/n) XᵀX</code> (normalizada) muestra qué tan linealmente relacionadas están las variables. Valores cercanos a 1 o -1 indican alta correlación.</p>
+<h2 id="3.2-Matriz-de-correlaci%C3%B3n-%E2%80%94-%C2%BFqu%C3%A9-variables-se-relacionan-entre-s%C3%AD?">3.2 Matriz de correlación — ¿qué variables se relacionan entre sí?<a class="anchor-link" href="#3.2-Matriz-de-correlaci%C3%B3n-%E2%80%94-%C2%BFqu%C3%A9-variables-se-relacionan-entre-s%C3%AD?">¶</a></h2><p>La <strong>matriz de correlación</strong> <code>C = (1/n) XᵀX</code> (normalizada) muestra qué tan linealmente relacionadas están las variables. Valores cercanos a 1 o -1 indican alta correlación.</p>
 </div>
 </div>
 </div>
@@ -8997,7 +9008,7 @@ Representación matemática:
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="5.3.3-Gr%C3%A1ficos-de-Dispersi%C3%B3n-%E2%80%94-Relaciones-clave-entre-variables">5.3.3 Gráficos de Dispersión — Relaciones clave entre variables<a class="anchor-link" href="#5.3.3-Gr%C3%A1ficos-de-Dispersi%C3%B3n-%E2%80%94-Relaciones-clave-entre-variables">¶</a></h2><p>Los gráficos de dispersión permiten visualizar directamente la relación entre dos variables e identificar patrones no lineales.</p>
+<h2 id="3.3-Gr%C3%A1ficos-de-dispersi%C3%B3n-entre-variables">3.3 Gráficos de dispersión entre variables<a class="anchor-link" href="#3.3-Gr%C3%A1ficos-de-dispersi%C3%B3n-entre-variables">¶</a></h2><p>Los gráficos de dispersión permiten visualizar directamente la relación entre dos variables e identificar patrones no lineales.</p>
 </div>
 </div>
 </div>
@@ -9084,7 +9095,7 @@ Representación matemática:
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="5.3.4-Relaci%C3%B3n-Sell-in-vs-Inventario-%E2%80%94-An%C3%A1lisis-de-cadena-de-suministro">5.3.4 Relación Sell-in vs Inventario — Análisis de cadena de suministro<a class="anchor-link" href="#5.3.4-Relaci%C3%B3n-Sell-in-vs-Inventario-%E2%80%94-An%C3%A1lisis-de-cadena-de-suministro">¶</a></h2>
+<h2 id="3.4-Relaci%C3%B3n-Sell-in-vs-Inventario-%E2%80%94-cadena-de-suministro">3.4 Relación Sell-in vs Inventario — cadena de suministro<a class="anchor-link" href="#3.4-Relaci%C3%B3n-Sell-in-vs-Inventario-%E2%80%94-cadena-de-suministro">¶</a></h2>
 </div>
 </div>
 </div>
@@ -9177,7 +9188,7 @@ Hallazgo: los canales con más ventas no siempre tienen más inventario →
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
-<h1 id="FASE-C-%C2%B7-Modelado-Predictivo-(Machine-Learning)">FASE C · Modelado Predictivo (Machine Learning)<a class="anchor-link" href="#FASE-C-%C2%B7-Modelado-Predictivo-(Machine-Learning)">¶</a></h1>
+<h1 id="PARTE-4-%C2%B7-Modelo-Predictivo-(Machine-Learning)">PARTE 4 · Modelo Predictivo (Machine Learning)<a class="anchor-link" href="#PARTE-4-%C2%B7-Modelo-Predictivo-(Machine-Learning)">¶</a></h1><p><em>Cubre la sección 5.5 del reto: desarrollo y validación del modelo de aprendizaje supervisado.</em></p>
 </div>
 </div>
 </div>
@@ -9188,7 +9199,7 @@ Hallazgo: los canales con más ventas no siempre tienen más inventario →
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="C.1-Arquitectura-del-modelo">C.1 Arquitectura del modelo<a class="anchor-link" href="#C.1-Arquitectura-del-modelo">¶</a></h2><p>Para abordar la alta intermitencia, se desarrolló un <strong>modelo de dos etapas</strong>:</p>
+<h2 id="4.1-Arquitectura-del-modelo">4.1 Arquitectura del modelo<a class="anchor-link" href="#4.1-Arquitectura-del-modelo">¶</a></h2><p>Para abordar la alta intermitencia, se desarrolló un <strong>modelo de dos etapas</strong>:</p>
 <pre><code>Etapa 1 — Clasificador (¿habrá demanda esta semana?)
   • Algoritmo: LightGBM binario
   • P(demanda &gt; 0) por SKU × semana
@@ -9201,9 +9212,7 @@ Etapa 2 — Regresor (¿cuánto se venderá?)
 
 Predicción final = P(demanda) × cantidad_estimada  [con threshold Youden's J]
 </code></pre>
-<p><strong>Features (21 en total):</strong> lags 1/4/52 semanas, medias móviles 4/12 semanas,
-volatilidad, indicadores de demanda reciente, codificación estacional (sin/cos),
-features logarítmicas (log_lag_1, log_rolling_mean_12), zscore vs canal.</p>
+<p><strong>Features (21 en total):</strong> lags 1/4/52 semanas, medias móviles 4/12 semanas, volatilidad, indicadores de demanda reciente, codificación estacional (sin/cos), features logarítmicas (log_lag_1, log_rolling_mean_12), zscore vs canal.</p>
 </div>
 </div>
 </div>
@@ -9273,7 +9282,7 @@ Loop 2 (Baseline Seasonal Naïve) 1.659          NaN  Referencia estadística
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="C.2-Validaci%C3%B3n-cruzada-walk-forward-(5-folds)">C.2 Validación cruzada walk-forward (5 folds)<a class="anchor-link" href="#C.2-Validaci%C3%B3n-cruzada-walk-forward-(5-folds)">¶</a></h2><p>Para garantizar que el modelo no tiene fuga de datos (data leakage), se usa <strong>validación cruzada con ventana expandida</strong>: el modelo entrena en datos históricos y se evalúa en semanas futuras no vistas.</p>
+<h2 id="4.2-Validaci%C3%B3n-cruzada-walk-forward-(5-folds)">4.2 Validación cruzada walk-forward (5 folds)<a class="anchor-link" href="#4.2-Validaci%C3%B3n-cruzada-walk-forward-(5-folds)">¶</a></h2><p>Para garantizar que el modelo no tiene fuga de datos (data leakage), se usa <strong>validación cruzada con ventana expandida</strong>: el modelo entrena en datos históricos y se evalúa en semanas futuras no vistas.</p>
 </div>
 </div>
 </div>
@@ -9425,7 +9434,7 @@ Loop 2 (Baseline Seasonal Naïve) 1.659          NaN  Referencia estadística
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="C.3-Pron%C3%B3stico-%E2%80%94-Horizonte-de-52-semanas-con-cobertura-real">C.3 Pronóstico — Horizonte de 52 semanas con cobertura real<a class="anchor-link" href="#C.3-Pron%C3%B3stico-%E2%80%94-Horizonte-de-52-semanas-con-cobertura-real">¶</a></h2><p>El Seasonal Naïve calcula <code>forecast(t) = demanda(t - 52 semanas)</code>. El último dato real es <strong>W33·2025</strong>, por lo tanto el horizonte confiable es exactamente <strong>52 semanas: W34·2025 → W33·2026</strong>. Más allá, el lag-52 apuntaría a semanas sin datos reales.</p>
+<h2 id="4.3-Pron%C3%B3stico-%E2%80%94-Horizonte-de-52-semanas-con-cobertura-real">4.3 Pronóstico — Horizonte de 52 semanas con cobertura real<a class="anchor-link" href="#4.3-Pron%C3%B3stico-%E2%80%94-Horizonte-de-52-semanas-con-cobertura-real">¶</a></h2><p>El Seasonal Naïve calcula <code>forecast(t) = demanda(t - 52 semanas)</code>. El último dato real es <strong>W33·2025</strong>, por lo tanto el horizonte confiable es exactamente <strong>52 semanas: W34·2025 → W33·2026</strong>. Más allá, el lag-52 apuntaría a semanas sin datos reales.</p>
 </div>
 </div>
 </div>
@@ -9493,7 +9502,7 @@ Total Q50: 3,782,848 uds | Avg semanal: 72,747 uds/sem
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
-<h1 id="Preguntas-Estrat%C3%A9gicas-%E2%80%94-Respuestas-del-Modelo">Preguntas Estratégicas — Respuestas del Modelo<a class="anchor-link" href="#Preguntas-Estrat%C3%A9gicas-%E2%80%94-Respuestas-del-Modelo">¶</a></h1>
+<h1 id="PARTE-5-%C2%B7-Preguntas-Estrat%C3%A9gicas-de-Negocio">PARTE 5 · Preguntas Estratégicas de Negocio<a class="anchor-link" href="#PARTE-5-%C2%B7-Preguntas-Estrat%C3%A9gicas-de-Negocio">¶</a></h1><p><em>Respuestas cuantitativas del modelo a las 5 preguntas clave del reto (sección 5.5).</em></p>
 </div>
 </div>
 </div>
