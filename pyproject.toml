@@ -5,6 +5,14 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "pandas>=2.0.0",
+    "pyarrow>=14.0.0",
+    "streamlit>=1.57.0",
+    "altair>=5.0.0",
+]
+
+[project.optional-dependencies]
+ml = [
     "duckdb>=1.5.3",
     "ipykernel>=7.2.0",
     "jupyter>=1.1.1",
@@ -12,14 +20,15 @@ dependencies = [
     "loguru>=0.7.3",
     "mlflow>=3.12.0",
     "mlforecast>=1.0.31",
-    "pandas>=2.3.3",
     "polars>=1.41.0",
     "prefect>=3.7.2",
-    "pyarrow>=23.0.1",
     "pydantic>=2.13.4",
     "pytest>=9.0.3",
     "ruff>=0.15.14",
     "scikit-learn>=1.8.0",
     "statsforecast>=2.0.3",
-    "streamlit>=1.57.0",
+    "optuna>=4.0.0",
+    "seaborn>=0.13.0",
+    "matplotlib>=3.7.0",
+    "nbconvert>=7.0.0",
 ]
