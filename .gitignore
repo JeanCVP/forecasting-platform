@@ -9,10 +9,6 @@ __pycache__/
 mlruns/
 
 # Data
-data/raw/
-data/bronze/
-data/silver/
-data/gold/
 
 # Models
 models/
@@ -37,3 +33,9 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+# Data excluida (modelos grandes)
+data/models/
+data/gold/
+data/bronze/
+data/raw/
+
