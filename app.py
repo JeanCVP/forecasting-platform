@@ -29,12 +29,13 @@ st.set_page_config(
 st.markdown(T.inject_css(), unsafe_allow_html=True)
 
 # ─── Rutas ────────────────────────────────────────────────────────────────────
-SILVER_PATH  = Path("data/silver/silver_dataset.parquet")
-FC_PATH      = Path("data/forecasts/forecasts.parquet")
-BLENDED_PATH = Path("data/forecasts/loop8_blended_forecasts.parquet")
-RISK_PATH    = Path("data/forecasts/inventory_risk.parquet")
-CHURN_PATH   = Path("data/forecasts/churn_analysis.parquet")
-REPORTS_DIR  = Path("reports")
+SILVER_PATH   = Path("data/silver/silver_dataset.parquet")
+SELLIN_PATH   = Path("data/forecasts/sellin_dashboard.parquet")  # pre-filtrado Sell-in
+FC_PATH       = Path("data/forecasts/forecasts.parquet")
+BLENDED_PATH  = Path("data/forecasts/loop8_blended_forecasts.parquet")
+RISK_PATH     = Path("data/forecasts/inventory_risk.parquet")
+CHURN_PATH    = Path("data/forecasts/churn_analysis.parquet")
+REPORTS_DIR   = Path("reports")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -48,9 +49,29 @@ def _norm_yw(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-@st.cache_data(show_spinner=False, ttl=300)
+@st.cache_data(show_spinner=False, ttl=300, max_entries=2)
 def load_silver() -> pd.DataFrame:
-    return _norm_yw(pd.read_parquet(SILVER_PATH))
+    """Carga solo Sell-in con dtypes optimizados (~29 MB RAM en vez de 1.3 GB).
+
+    El dashboard solo usa la categoría Sell-in. Se usa el parquet pre-filtrado
+    si existe; de lo contrario se filtra el silver completo (más pesado).
+    """
+    if SELLIN_PATH.exists():
+        df = pd.read_parquet(SELLIN_PATH)
+    else:
+        full = pd.read_parquet(SILVER_PATH, columns=["Channel", "Material Description",
+                                                     "Category", "year_week", "quantity"])
+        df = full[full["Category"] == "Sell-in"].copy()
+        del full
+    df = _norm_yw(df)
+    # Optimización de memoria: categóricas + float32
+    for col in ("Channel", "Material Description"):
+        if col in df.columns:
+            df[col] = df[col].astype("category")
+    df["quantity"] = pd.to_numeric(df["quantity"], errors="coerce").fillna(0).astype("float32")
+    if "Category" not in df.columns:
+        df["Category"] = "Sell-in"
+    return df
 
 
 @st.cache_data(show_spinner=False, ttl=300)
@@ -399,7 +420,7 @@ elif page.startswith("📈"):
     ca, cb = st.columns(2)
     with ca:
         st.markdown(T.section("🏆 Top 10 productos"), unsafe_allow_html=True)
-        topp = (sellin.groupby("Material Description")["quantity"].sum()
+        topp = (sellin.groupby("Material Description", observed=True)["quantity"].sum()
                 .nlargest(10).reset_index())
         topp["short"] = topp["Material Description"].str[:34]
         ch = (alt.Chart(topp).mark_bar(color=T.CHART_BLUE, cornerRadiusEnd=4)
@@ -414,7 +435,7 @@ elif page.startswith("📈"):
             width='stretch')
     with cb:
         st.markdown(T.section("🏢 Top 10 clientes"), unsafe_allow_html=True)
-        topc = (sellin.groupby("Channel")["quantity"].sum().nlargest(10).reset_index())
+        topc = (sellin.groupby("Channel", observed=True)["quantity"].sum().nlargest(10).reset_index())
         ch2 = (alt.Chart(topc).mark_bar(color=T.CHART_GREEN, cornerRadiusEnd=4)
                .encode(
                    x=alt.X("quantity:Q", title="Unidades"),
