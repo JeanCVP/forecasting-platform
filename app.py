@@ -180,7 +180,7 @@ with st.sidebar:
     st.markdown("## 📦 Pronóstico de Demanda")
     st.markdown("**Histórico 2023–W33·2025 · Pronóstico W34·2025–W52·2026**")
     st.markdown("---")
-    page = st.radio("", [
+    page = st.radio("Navegación", [
         "🏠  Resumen Ejecutivo",
         "📈  Comportamiento de Ventas",
         "🔮  Proyección de Demanda",
