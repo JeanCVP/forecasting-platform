@@ -189,7 +189,7 @@ with st.sidebar:
     )
 
     st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
-    if st.button("🔄  Actualizar datos", use_container_width=True):
+    if st.button("🔄  Actualizar datos", width='stretch'):
         st.cache_data.clear()
         st.rerun()
 
@@ -341,7 +341,7 @@ if page.startswith("🏠"):
             grid=True, gridColor=T.CHART_GRID, domainColor=T.CHART_GRID,
             labelColor=T.SLATE, titleColor=T.SLATE).configure_legend(
             labelColor=T.SLATE, labelFontSize=12),
-        use_container_width=True)
+        width='stretch')
     st.caption("La banda verde representa el intervalo de confianza Q10–Q90 del modelo. "
                "La línea punteada es la proyección a 52 semanas.")
 
@@ -393,7 +393,7 @@ elif page.startswith("📈"):
         yoy_chart.properties(height=300).configure_view(strokeWidth=0).configure_axis(
             grid=True, gridColor=T.CHART_GRID, domainColor=T.CHART_GRID,
             labelColor=T.SLATE, titleColor=T.SLATE).configure_legend(labelColor=T.SLATE),
-        use_container_width=True)
+        width='stretch')
 
     # ── Top productos y canales ──
     ca, cb = st.columns(2)
@@ -411,7 +411,7 @@ elif page.startswith("📈"):
         st.altair_chart(
             ch.properties(height=320).configure_view(strokeWidth=0).configure_axis(
                 grid=True, gridColor=T.CHART_GRID, labelColor=T.SLATE, titleColor=T.SLATE),
-            use_container_width=True)
+            width='stretch')
     with cb:
         st.markdown(T.section("🏢 Top 10 clientes"), unsafe_allow_html=True)
         topc = (sellin.groupby("Channel")["quantity"].sum().nlargest(10).reset_index())
@@ -423,7 +423,7 @@ elif page.startswith("📈"):
         st.altair_chart(
             ch2.properties(height=320).configure_view(strokeWidth=0).configure_axis(
                 grid=True, gridColor=T.CHART_GRID, labelColor=T.SLATE, titleColor=T.SLATE),
-            use_container_width=True)
+            width='stretch')
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -487,7 +487,7 @@ elif page.startswith("🔮"):
         alt.layer(band, line).properties(height=330).configure_view(strokeWidth=0)
         .configure_axis(grid=True, gridColor=T.CHART_GRID, domainColor=T.CHART_GRID,
                         labelColor=T.SLATE, titleColor=T.SLATE),
-        use_container_width=True)
+        width='stretch')
     st.caption("Banda verde = rango de confianza Q10 (escenario pesimista) a Q90 (optimista). "
                "Línea = pronóstico esperado Q50.")
 
@@ -504,7 +504,7 @@ elif page.startswith("🔮"):
     st.altair_chart(
         chf.properties(height=360).configure_view(strokeWidth=0).configure_axis(
             grid=True, gridColor=T.CHART_GRID, labelColor=T.SLATE, titleColor=T.SLATE),
-        use_container_width=True)
+        width='stretch')
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -564,7 +564,7 @@ elif page.startswith("🚨"):
         st.altair_chart(
             donut.properties(height=300).configure_view(strokeWidth=0)
             .configure_legend(labelColor=T.SLATE, titleColor=T.INK),
-            use_container_width=True)
+            width='stretch')
     with cb:
         st.markdown(T.section("🏢 SKUs en riesgo por cliente"), unsafe_allow_html=True)
         ch_risk = (risk[risk["risk_level"].isin(["CRITICAL", "HIGH"])]
@@ -577,7 +577,7 @@ elif page.startswith("🚨"):
             st.altair_chart(
                 chb.properties(height=300).configure_view(strokeWidth=0).configure_axis(
                     grid=True, gridColor=T.CHART_GRID, labelColor=T.SLATE, titleColor=T.SLATE),
-                use_container_width=True)
+                width='stretch')
 
     # ── Tabla de críticos ──
     st.markdown(T.section("📋 Productos que requieren reposición urgente"), unsafe_allow_html=True)
@@ -597,7 +597,7 @@ elif page.startswith("🚨"):
     show["Producto"] = show["Producto"].str[:42]
 
     st.dataframe(
-        show, use_container_width=True, hide_index=True,
+        show, width='stretch', hide_index=True,
         column_config={
             "Nivel": st.column_config.TextColumn(width="small"),
             "Cobertura (sem)": st.column_config.NumberColumn(format="%.2f"),
@@ -655,7 +655,7 @@ elif page.startswith("👥"):
         st.altair_chart(
             donut.properties(height=300).configure_view(strokeWidth=0)
             .configure_legend(labelColor=T.SLATE, titleColor=T.INK),
-            use_container_width=True)
+            width='stretch')
     with cb:
         st.markdown(T.section("📉 Semanas sin comprar vs cambio de volumen"), unsafe_allow_html=True)
         sc = churn.copy()
@@ -678,7 +678,7 @@ elif page.startswith("👥"):
             scatter.properties(height=300).configure_view(strokeWidth=0).configure_axis(
                 grid=True, gridColor=T.CHART_GRID, labelColor=T.SLATE, titleColor=T.SLATE)
             .configure_legend(labelColor=T.SLATE, titleColor=T.INK),
-            use_container_width=True)
+            width='stretch')
 
     # ── Tabla clientes en riesgo ──
     st.markdown(T.section("📋 Clientes que requieren acción comercial"), unsafe_allow_html=True)
@@ -694,7 +694,7 @@ elif page.startswith("👥"):
     show["% sem activas"] = show["% sem activas"].round(1)
     show["Vol. promedio"] = show["Vol. promedio"].round(1)
     show["Cambio vol %"] = show["Cambio vol %"].round(1)
-    st.dataframe(show, use_container_width=True, hide_index=True)
+    st.dataframe(show, width='stretch', hide_index=True)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
