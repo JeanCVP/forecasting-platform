@@ -197,7 +197,7 @@ AUC = 0.964                       transform del target
 **5 páginas disponibles:**
 - 🏠 Resumen Ejecutivo — KPIs globales y alertas principales
 - 📈 Comportamiento de Ventas — histórico 2023–2025
-- 🔮 Proyección de Demanda — forecast 71 semanas con banda Q10/Q90
+- 🔮 Proyección de Demanda — forecast 52 semanas (W34·2025–W33·2026) con banda Q10/Q90
 - 🚨 Alertas de Inventario — riesgo CRITICAL/HIGH/MEDIUM/LOW por SKU
 - 👥 Análisis de Churn — riesgo de abandono por cliente
 
